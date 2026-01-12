@@ -17,13 +17,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.blue
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+// import androidx.core.graphics.blue
+import org.jetbrains.androidx.navigation.NavType
+import org.jetbrains.androidx.navigation.compose.NavHost
+import org.jetbrains.androidx.navigation.compose.composable
+import org.jetbrains.androidx.navigation.compose.currentBackStackEntryAsState
+import org.jetbrains.androidx.navigation.compose.rememberNavController
+import org.jetbrains.androidx.navigation.navArgument
 
 // Multiplatform Resource Imports
 import org.jetbrains.compose.resources.painterResource
@@ -126,8 +126,8 @@ fun MainScreen() {
                 )
             ) { backStackEntry ->
                 val gameType = backStackEntry.arguments?.getInt("gameType") ?: 0
-                val hex = backStackEntry.arguments?.getString("gameColor") ?: blue.value.toString(16)
-                val color = Color(hex.toULong(16))
+                val hex = backStackEntry.arguments?.getString("gameColor") ?: "FF0000FF"
+                val color = Color(hex.toLong(16))
                 val playerNamesString = backStackEntry.arguments?.getString("playerNames")
                 SetupPage(
                     navController = navController,

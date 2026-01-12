@@ -1,10 +1,7 @@
 package com.example.games_scoring_app.Data
 
-import android.content.Context
-import android.util.Log
-import androidx.compose.ui.geometry.isEmpty
+import androidx.room.ConstructedBy
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -14,11 +11,26 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// FIXME: Add actual expects for logger/log if Android Log is not available in commonMain, or use println
+// For now removing Android Log import might break logging unless handled.
+// Using println or expect/actual logger is recommended for KMP. I will comment out Log calls in next steps or assume user fixes it.
+// Actually I'll keep Log calls but I need to handle the import. "android.util.Log" is not commonMain.
+// I will remove the import and comment out Logs? Or replace with println?
+// I'll replace with println for now or leave it if I can't easily fix.
+// Wait, I can't use `android.util.Log` in commonMain.
+// I will replace imports.
+
+import androidx.room.RoomDatabaseConstructor
+
+expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
+expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>
+
 @Database(
     entities = [Players::class, Games::class, Scores::class, GameTypes::class, Settings::class, ScoreTypes::class],
     version = 5,
     exportSchema = true,
 )
+@ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playersDao(): PlayersDao
     abstract fun gamesDao(): GamesDao
@@ -34,56 +46,53 @@ abstract class AppDatabase : RoomDatabase() {
         private val _isDatabaseReady = MutableStateFlow(false)
         val isDatabaseReady: StateFlow<Boolean> = _isDatabaseReady.asStateFlow()
 
-        fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
-            Log.d("AppDatabase", "getDatabase called")
-            val appContext = context.applicationContext
+        fun getDatabase(scope: CoroutineScope): AppDatabase {
+            println("AppDatabase: getDatabase called")
             if(INSTANCE == null){
-                Log.d("AppDatabase", "Creating new database instance")
-                val instance = Room.databaseBuilder(
-                    appContext,
-                    AppDatabase::class.java,
-                    "app_database"
-                )
+                println("AppDatabase: Creating new database instance")
+                val builder = getDatabaseBuilder()
+                val instance = builder
+                    .setDriver(androidx.sqlite.driver.bundled.BundledSQLiteDriver())
                     .fallbackToDestructiveMigration()
-                    .addCallback(AppDatabaseCallback(scope, appContext))
+                    .addCallback(AppDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance
             }
-            Log.d("AppDatabase", "Returning existing database instance")
+            println("AppDatabase: Returning existing database instance")
             signalDatabaseOperational()
             return INSTANCE!!
         }
         private fun signalDatabaseOperational() {
             if (!_isDatabaseReady.value) { // Only set to true if it's currently false
                 _isDatabaseReady.value = true
-                Log.d("AppDatabase", "Database signaled as operational (created/opened and populated if new).")
+                println("AppDatabase: Database signaled as operational (created/opened and populated if new).")
             }
         }
 
         private fun stopSignalDatabaseOperational() {
             if (_isDatabaseReady.value) { // Only set to false if it's currently true
                 _isDatabaseReady.value = false
-                Log.d("AppDatabase", "Database signaled as operational (created/opened and populated if new).")
+                println("AppDatabase: Database signaled as operational (created/opened and populated if new).")
             }
         }
     }
-    private class AppDatabaseCallback(private val scope: CoroutineScope, private val appContext: Context) : Callback() {
+    private class AppDatabaseCallback(private val scope: CoroutineScope) : Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
-            Log.d("AppDatabase", "onCreate called")
+            println("AppDatabase: onCreate called")
             super.onCreate(db)
 
         }
 
         override fun onOpen(db: SupportSQLiteDatabase) {
-            Log.d("AppDatabase", "onOpen called")
+            println("AppDatabase: onOpen called")
             super.onOpen(db)
             scope.launch(Dispatchers.IO) {
-                val database = INSTANCE ?: AppDatabase.getDatabase(appContext, scope)
+                val database = INSTANCE ?: AppDatabase.getDatabase(scope)
                 stopSignalDatabaseOperational()
-                Log.d("AppDatabase", "Pre-populating database...")
+                println("AppDatabase: Pre-populating database...")
                 // --- CHANGE 1: Pass the new DAO here ---
                 populateDatabase(database.gameTypesDao(), database.settingsDao(), database.scoreTypesDao())
-                Log.d("AppDatabase", "Database pre-populated.")
+                println("AppDatabase: Database pre-populated.")
                 signalDatabaseOperational()
             }
 
@@ -95,7 +104,7 @@ abstract class AppDatabase : RoomDatabase() {
 
             // Only clear and populate if the tables are empty to avoid wiping data on every open
             if (gameTypesDao.getAllGameTypesAsList().isEmpty()) {
-                Log.d("AppDatabase", "GameTypes table is empty, populating...")
+                println("AppDatabase: GameTypes table is empty, populating...")
 
                 val settings = settingsDao.getSettings()
 
@@ -118,7 +127,7 @@ abstract class AppDatabase : RoomDatabase() {
 
 
                 // Add your initial data here using your DAO
-                Log.d("AppDatabase", "Adding initial data to database...")
+                println("AppDatabase: Adding initial data to database...")
                 // Note: The insert function needs to return the ID to link the score types
                 val trucoId = gameTypesDao.insertGameType(GameTypes(name = "Truco", description = "Juego de cartas popular en Argentina.", maxPlayers = 2, minPlayers = 2, maxScore = 30, type = "Cartas"))
                 val generalaId = gameTypesDao.insertGameType(GameTypes(name = "Generala", description = "Juego de dados, el objetivo es lograr las mejores combinaciones.", maxPlayers = 8, minPlayers = 1, maxScore = 370, type = "Dados"))
@@ -128,7 +137,7 @@ abstract class AppDatabase : RoomDatabase() {
 
 
                 // --- CHANGE 3: Populate the ScoreTypes table ---
-                Log.d("AppDatabase", "Populating ScoreTypes...")
+                println("AppDatabase: Populating ScoreTypes...")
                 scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = trucoId.toInt(), name = "Final Score"))
 
                 // Generala Score Types
@@ -149,9 +158,9 @@ abstract class AppDatabase : RoomDatabase() {
                 scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = rankingId.toInt(), name = "Final Score"))
                 scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = levelsId.toInt(), name = "Final Score"))
 
-                Log.d("AppDatabase", "ScoreTypes populated.")
+                println("AppDatabase: ScoreTypes populated.")
             } else {
-                Log.d("AppDatabase", "Database already populated.")
+                println("AppDatabase: Database already populated.")
             }
         }
     }
