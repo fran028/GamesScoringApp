@@ -3,12 +3,7 @@ package com.example.games_scoring_app
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +12,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-// import androidx.core.graphics.blue
+
+// CORRECT Multiplatform Navigation Imports
 import org.jetbrains.androidx.navigation.NavType
 import org.jetbrains.androidx.navigation.compose.NavHost
 import org.jetbrains.androidx.navigation.compose.composable
@@ -36,10 +32,9 @@ import com.example.games_scoring_app.Pages.*
 import com.example.games_scoring_app.Theme.*
 import com.example.games_scoring_app.ui.theme.Games_Scoring_AppTheme
 
-@androidx.compose.runtime.Composable
+@Composable // Removed the full androidx.compose prefix to keep it clean
 fun App() {
     Games_Scoring_AppTheme {
-        // Database state comes from your shared Data module
         val isDatabaseReady by AppDatabase.isDatabaseReady.collectAsState()
 
         if (isDatabaseReady) {
@@ -50,15 +45,15 @@ fun App() {
     }
 }
 
-@androidx.compose.runtime.Composable
+@Composable
 fun LoadingScreen() {
-    androidx.compose.foundation.layout.Box(
+    Box( // Simplified: removed long androidx.compose.foundation... prefixes
         modifier = Modifier.fillMaxSize().background(black),
         contentAlignment = Alignment.Center
     ) {
-        androidx.compose.foundation.layout.Column(
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
             Image(
@@ -66,7 +61,7 @@ fun LoadingScreen() {
                 contentDescription = "App Image",
                 modifier = Modifier.size(100.dp)
             )
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = "LOADING",
                 style = TextStyle(
@@ -81,14 +76,16 @@ fun LoadingScreen() {
     }
 }
 
-@androidx.compose.runtime.Composable
+@Composable
 fun MainScreen() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0)
+        // Note: WindowInsets(0,0,0,0) is also part of foundation layout,
+        // which is already imported.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         NavHost(
             navController = navController,

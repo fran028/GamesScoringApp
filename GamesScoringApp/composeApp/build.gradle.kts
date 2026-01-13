@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -8,6 +7,8 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    // Serialization is needed if you pass custom objects in Navigation
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -16,7 +17,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     room {
         schemaDirectory("$projectDir/schemas")
     }
@@ -30,11 +31,13 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            // Added: Requirement for some legacy Android components
+            implementation("com.google.android.material:material:1.12.0")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -43,13 +46,24 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
+            // Lifecycle & ViewModel (KMP versions)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10") // or later
+
+            // Navigation (KMP version)
+            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10")
+
+            // Serialization (Replaces manual JSON parsing)
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+
+            // Room (KMP versions)
             implementation(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
 
+            // NOTE: Google Fonts (androidx.ui.text.google.fonts) is Android-only.
+            // For KMP, put your .ttf files in commonMain/composeResources/font
+            // and use Res.font.your_font_name
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -68,14 +82,16 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    // Packaging excludes are vital for KMP to avoid duplicate file errors
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/versions/9/previous-compilation-data.bin"
         }
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = false // Set to true if you have your proguard-rules.pro ready
         }
     }
     compileOptions {
@@ -86,5 +102,9 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
-}
 
+    // CRITICAL: Room KSP processors for all targets
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+}
