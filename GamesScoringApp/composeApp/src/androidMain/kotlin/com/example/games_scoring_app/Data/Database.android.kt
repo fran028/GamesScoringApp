@@ -15,4 +15,8 @@ actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     )
 }
 
-actual object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>
+// Update this part:
+@Suppress("NO_ACTUAL_FOR_EXPECT")
+actual object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
+    override fun initialize(): AppDatabase = super.initialize()
+}
