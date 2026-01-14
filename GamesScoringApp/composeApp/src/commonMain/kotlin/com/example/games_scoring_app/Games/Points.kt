@@ -1,6 +1,5 @@
 package com.example.games_scoring_app.Games
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +59,6 @@ fun PuntosScoreboard(
     onDeleteScore: (Scores) -> Unit
 ) {
     val TAG = "PuntosScoreboard"
-    Log.d(TAG, "PuntosScoreboard called")
 
     val backgroundColor = if (themeMode == 0) black else white
     val fontColor = if (themeMode == 0) white else black
@@ -106,7 +104,6 @@ fun PuntosScoreboard(
                 onConfirm = {
                     val scoreValue = inputValue.toIntOrNull()
                     if (scoreValue != null) {
-                        Log.d(TAG, "Adding score: $scoreValue")
                         val newScore = Scores(
                             id_player = selectedPlayer!!.player.id,
                             id_score_type = finalScoreType.id,
@@ -135,7 +132,6 @@ fun PuntosScoreboard(
                 onConfirm = {
                     val scoreValue = inputValue.toIntOrNull()
                     if (scoreValue != null) {
-                        Log.d(TAG, "Updating score to: $scoreValue")
                         // Create a copy of the selected score with the updated value
                         val updatedScore = selectedScore!!.copy(score = scoreValue)
                         onUpdateScore(updatedScore)
@@ -144,7 +140,6 @@ fun PuntosScoreboard(
                     inputValue = ""
                 },
                 onDelete = {
-                    Log.d(TAG, "Deleting score")
                     onDeleteScore(selectedScore!!)
                     showEditPopup = false
                     inputValue = ""

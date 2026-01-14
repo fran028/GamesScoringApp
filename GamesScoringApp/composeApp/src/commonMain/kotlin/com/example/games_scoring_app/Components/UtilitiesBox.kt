@@ -23,13 +23,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+// REMOVED: import androidx.compose.ui.res.painterResource
+// ADDED KMP IMPORTS:
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.*
+
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.games_scoring_app.R
+// REMOVED: import com.example.games_scoring_app.R
 import com.example.games_scoring_app.Theme.LeagueGothic
 import com.example.games_scoring_app.Theme.RobotoCondensed
 import com.example.games_scoring_app.Theme.gray
@@ -44,7 +49,7 @@ fun UtilitiesBox(
     textcolor: Color,
     accentColor: Color,
     width: Dp = 0.dp,
-    icon: Int,
+    icon: DrawableResource, // CHANGED: From Int to DrawableResource
 ) {
     val iconSize = 32
 
@@ -64,7 +69,7 @@ fun UtilitiesBox(
                     .fillMaxHeight()
                     .background(bgcolor, shape = RoundedCornerShape(10.dp))
                     .clip(RoundedCornerShape(10.dp))
-                    .clickable { onClick() } // The main body is clickable
+                    .clickable { onClick() }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -77,7 +82,8 @@ fun UtilitiesBox(
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = icon),
+                            // KMP Syntax: Removed 'id ='
+                            painter = painterResource(icon),
                             contentDescription = "Title Icon",
                             modifier = Modifier.size((iconSize * 0.75f).dp)
                         )
@@ -99,14 +105,15 @@ fun UtilitiesBox(
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .aspectRatio(1f) // Make it a square
+                    .aspectRatio(1f)
                     .background(accentColor, shape = RoundedCornerShape(10.dp))
                     .clip(RoundedCornerShape(10.dp))
                     .clickable { onClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.play),
+                    // KMP Syntax: Changed R.drawable.play to Res.drawable.play
+                    painter = painterResource(Res.drawable.play),
                     contentDescription = "Play Game",
                     modifier = Modifier.size(32.dp)
                 )
@@ -126,7 +133,6 @@ fun UtilitiesBox(
                     textAlign = TextAlign.Start
                 )
             }
-            // }
         }
     }
 }

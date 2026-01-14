@@ -1,7 +1,6 @@
 package com.example.games_scoring_app.Components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,21 +8,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.games_scoring_app.R
-import com.example.games_scoring_app.Screen
 import com.example.games_scoring_app.Theme.LeagueGothic
+
+// KMP Resource Imports
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.*
 
 @Composable
 fun IconButtonBar(
@@ -33,7 +33,7 @@ fun IconButtonBar(
     textcolor: Color,
     width: Dp = 0.dp,
     height: Dp,
-    icon: Int,
+    icon: DrawableResource, // CHANGED: From Int to DrawableResource
     iconSize: Dp = 24.dp,
     doubleIcon: Boolean = false,
     transparent: Boolean = false
@@ -60,7 +60,8 @@ fun IconButtonBar(
         ) {
 
             Image(
-                painter = painterResource(id = icon),
+                // KMP Syntax: Removed 'id ='
+                painter = painterResource(icon),
                 contentDescription = "Button Icon",
                 modifier = Modifier.size(iconSize)
             )
@@ -77,7 +78,8 @@ fun IconButtonBar(
 
             if(doubleIcon){
                 Image(
-                    painter = painterResource(id = icon),
+                    // KMP Syntax: Removed 'id ='
+                    painter = painterResource(icon),
                     contentDescription = "Button Icon",
                     modifier = Modifier.size(iconSize)
                 )

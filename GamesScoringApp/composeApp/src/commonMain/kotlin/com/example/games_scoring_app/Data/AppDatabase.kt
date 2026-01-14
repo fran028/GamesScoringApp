@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -12,10 +13,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.atomicfu.locks.synchronized // Use atomicfu or a simple lock for KMP
+import kotlin.concurrent.Volatile
 
+// These tell the compiler that the platform-specific code exists elsewhere
 expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
 
+// Suppression is necessary because Room generates the 'actual' implementation automatically
 @Suppress("NO_ACTUAL_FOR_EXPECT")
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>
 
@@ -34,27 +37,26 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun scoreTypesDao(): ScoreTypesDao
 
     companion object {
+        @Volatile
         private var INSTANCE: AppDatabase? = null
+
         private val _isDatabaseReady = MutableStateFlow(false)
         val isDatabaseReady: StateFlow<Boolean> = _isDatabaseReady.asStateFlow()
 
-        // Simple lock object for KMP instead of JVM-only synchronized(this)
-        private val lock = Any()
-
-        // Change the getDatabase function in the companion object to this:
         fun getDatabase(scope: CoroutineScope): AppDatabase {
-            return INSTANCE ?: kotlin.run {
-                val builder = getDatabaseBuilder()
-                val instance = builder
-                    .setDriver(androidx.sqlite.driver.bundled.BundledSQLiteDriver())
-                    // In KMP, this function requires a named parameter
-                    .fallbackToDestructiveMigration(dropAllTables = true)
-                    .addCallback(AppDatabaseCallback(scope))
-                    .build()
-                INSTANCE = instance
-                signalDatabaseOperational()
-                instance
-            }
+            // Replaced 'synchronized' with a simple null-check pattern compatible with KMP
+            val existingInstance = INSTANCE
+            if (existingInstance != null) return existingInstance
+
+            val instance = getDatabaseBuilder()
+                .setDriver(BundledSQLiteDriver())
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .addCallback(AppDatabaseCallback(scope))
+                .build()
+
+            INSTANCE = instance
+            signalDatabaseOperational()
+            return instance
         }
 
         private fun signalDatabaseOperational() {
@@ -69,10 +71,6 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     private class AppDatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
-        override fun onCreate(connection: SQLiteConnection) {
-            super.onCreate(connection)
-        }
-
         override fun onOpen(connection: SQLiteConnection) {
             super.onOpen(connection)
             scope.launch(Dispatchers.IO) {

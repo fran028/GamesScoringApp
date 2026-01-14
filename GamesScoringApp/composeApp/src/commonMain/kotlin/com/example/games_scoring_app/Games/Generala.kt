@@ -1,6 +1,5 @@
 package com.example.games_scoring_app.Games
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -252,7 +251,7 @@ fun GeneralaScoreboard(
                                                 // Score exists, update it
                                                 val updatedScore = existingScore.copy(score = nextScoreInt)
                                                 onUpdateScore(updatedScore)
-                                                Log.d(TAG, "Updating score for ${player.name}, ${scoreType.name}: $nextScoreInt")
+
                                             } else {
                                                 // No score exists, create a new one
                                                 val newScore = Scores(
@@ -262,7 +261,7 @@ fun GeneralaScoreboard(
                                                     isFinalScore = false // Or determine this based on game rules
                                                 )
                                                 onAddScore(newScore)
-                                                Log.d(TAG, "Adding score for ${player.name}, ${scoreType.name}: $nextScoreInt")
+
                                             }
                                         },
                                     contentAlignment = Alignment.Center

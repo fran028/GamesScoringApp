@@ -23,27 +23,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.games_scoring_app.R
 import com.example.games_scoring_app.Theme.LeagueGothic
 import com.example.games_scoring_app.Theme.RobotoCondensed
 import com.example.games_scoring_app.Theme.darkgray
+
+// KMP Resource Imports
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.*
 
 @Composable
 fun LastGameBox(
     onClick: () -> Unit,
     title: String,
-    // description parameter is removed as it's not used in this new layout
     bgcolor: Color,
     textcolor: Color,
     accentColor: Color,
     width: Dp = 0.dp,
-    icon: Int,
+    icon: DrawableResource, // CHANGED: From Int to DrawableResource
     gameType: String = "",
     daysSinceLastPlayed: String
 ) {
@@ -78,7 +80,8 @@ fun LastGameBox(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = icon),
+                        // KMP Syntax: Removed 'id ='
+                        painter = painterResource(icon),
                         contentDescription = "Title Icon",
                         modifier = Modifier.size(if (gameType == "Generico") (iconSize * 0.25f).dp else (iconSize * 0.75f).dp)
                     )
@@ -122,7 +125,8 @@ fun LastGameBox(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.play),
+                // KMP Syntax: Replaced R.drawable.play with Res.drawable.play
+                painter = painterResource(Res.drawable.play),
                 contentDescription = "Play Game",
                 modifier = Modifier.size(32.dp)
             )

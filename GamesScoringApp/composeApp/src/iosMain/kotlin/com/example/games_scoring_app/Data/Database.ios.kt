@@ -2,20 +2,21 @@ package com.example.games_scoring_app.Data
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.RoomDatabaseConstructor
 import platform.Foundation.NSHomeDirectory
+import androidx.room.RoomDatabaseConstructor
 
-// This satisfies the "expect fun getDatabaseBuilder"
 actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     val dbFilePath = NSHomeDirectory() + "/games.db"
     return Room.databaseBuilder<AppDatabase>(
         name = dbFilePath,
-        factory = { AppDatabase::class.instantiateImpl() }
+        // factory must return the instance created by instantiateImpl()
+        factory = { AppDatabaseConstructor.initialize() }
     )
 }
 
-// This satisfies the "expect object AppDatabaseConstructor"
-// Note: Room's Gradle plugin generates the implementation, but we need
-// the actual declaration to link against the expect in commonMain.
 @Suppress("NO_ACTUAL_FOR_EXPECT")
-actual object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>
+actual object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
+    // This fixes "does not implement abstract member initialize"
+    // The Room compiler plugin will substitute the body of this function
+    override fun initialize(): AppDatabase = error("Should be substituted by Room compiler")
+}

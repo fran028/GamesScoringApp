@@ -3,19 +3,7 @@ package com.example.games_scoring_app.Components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,16 +11,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.games_scoring_app.R
+// KMP Resource Imports
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.*
+
 import com.example.games_scoring_app.Theme.LeagueGothic
 import com.example.games_scoring_app.Theme.RobotoCondensed
-import com.example.games_scoring_app.Theme.darkgray
 import com.example.games_scoring_app.Theme.gray
 import com.example.games_scoring_app.Theme.red
 
@@ -45,7 +35,7 @@ fun ScoreBoardBox(
     textcolor: Color,
     accentColor: Color,
     width: Dp = 0.dp,
-    icon: Int,
+    icon: DrawableResource, // CHANGED: From Int to DrawableResource
     gameType: String = "",
     showStats: Boolean = true,
     timesPlayed: Int,
@@ -69,7 +59,7 @@ fun ScoreBoardBox(
                     .fillMaxHeight()
                     .background(bgcolor, shape = RoundedCornerShape(10.dp))
                     .clip(RoundedCornerShape(10.dp))
-                    .clickable { onClick() } // The main body is clickable
+                    .clickable { onClick() }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -82,7 +72,8 @@ fun ScoreBoardBox(
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = icon),
+                            // KMP Syntax: removed 'id ='
+                            painter = painterResource(icon),
                             contentDescription = "Title Icon",
                             modifier = Modifier.size(if (gameType == "Generico") (iconSize * 0.25f).dp else (iconSize * 0.75f).dp)
                         )
@@ -115,42 +106,33 @@ fun ScoreBoardBox(
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .aspectRatio(1f) // Make it a square
+                    .aspectRatio(1f)
                     .background(accentColor, shape = RoundedCornerShape(10.dp))
                     .clip(RoundedCornerShape(10.dp))
                     .clickable { onClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.play),
+                    // KMP Syntax: Replaced R.drawable with Res.drawable
+                    painter = painterResource(Res.drawable.play),
                     contentDescription = "Play Game",
                     modifier = Modifier.size(32.dp)
                 )
             }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(Color.Transparent, shape = RoundedCornerShape(10.dp))
-//                    .clip(RoundedCornerShape(10.dp))
-//                    .padding(horizontal = 16.dp, vertical = 12.dp),
-//                contentAlignment = Alignment.CenterStart
-//            ) {
-                if (description.isNotBlank()) {
-                    Text(
-                        text = description,
-                        style = TextStyle(
-                            fontFamily = RobotoCondensed,
-                            color = gray,
-                            fontSize = 16.sp,
-                        ),
-                        textAlign = TextAlign.Start
-                    )
-                }
-           // }
+
+        if (description.isNotBlank()) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = description,
+                    style = TextStyle(
+                        fontFamily = RobotoCondensed,
+                        color = gray,
+                        fontSize = 16.sp,
+                    ),
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
 }

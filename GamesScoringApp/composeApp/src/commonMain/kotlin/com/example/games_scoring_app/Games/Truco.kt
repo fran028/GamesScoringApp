@@ -1,6 +1,5 @@
 package com.example.games_scoring_app.Games
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -118,7 +117,6 @@ fun TrucoScoreboard(
                             )
                             onAddScore(newScore)
                         }
-                        Log.d(TAG, "Player 1 new score: $newScoreValue")
                     },
                     buttonColor = buttonColor,
                     buttonFontColor = buttonFontColor,
@@ -192,7 +190,6 @@ fun TrucoScoreboard(
                             )
                             onAddScore(newScore)
                         }
-                        Log.d(TAG, "Player 2 new score: $newScoreValue")
                     },
                     buttonColor = buttonColor,
                     buttonFontColor = buttonFontColor,

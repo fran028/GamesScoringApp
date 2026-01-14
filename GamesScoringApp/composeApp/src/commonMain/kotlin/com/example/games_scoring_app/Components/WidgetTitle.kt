@@ -23,19 +23,22 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+// KMP Navigation and Resource Imports
 import androidx.navigation.NavController
-import com.example.games_scoring_app.R
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.*
+
 import com.example.games_scoring_app.Screen
 import com.example.games_scoring_app.Theme.LeagueGothic
 import com.example.games_scoring_app.Theme.black
 import com.example.games_scoring_app.Theme.white
 
 @Composable
-fun WidgetTitle(title: String, image: Int, navController: NavController) {
+fun WidgetTitle(title: String, image: DrawableResource, navController: NavController) {
     Row (
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
@@ -50,7 +53,8 @@ fun WidgetTitle(title: String, image: Int, navController: NavController) {
                 .border(4.dp, black, RoundedCornerShape(16.dp))
         ) {
             Image(
-                painter = painterResource(id = image),
+                // KMP Syntax: Removed 'id ='
+                painter = painterResource(image),
                 contentDescription = "Background Image",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -73,7 +77,8 @@ fun WidgetTitle(title: String, image: Int, navController: NavController) {
                         .padding(horizontal = 24.dp, vertical = 32.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        // KMP Syntax: Replaced R.drawable with Res.drawable
+                        painter = painterResource(Res.drawable.logo),
                         contentDescription = "App Image",
                         modifier = Modifier.size(50.dp)
                             .clickable {
@@ -94,17 +99,10 @@ fun WidgetTitle(title: String, image: Int, navController: NavController) {
                         ),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    /*Image(
-                        painter = painterResource(id = R.drawable.scoreboard),
-                        contentDescription = "App Image",
-                        modifier = Modifier.size(60.dp)
-                            .clickable {
-                                navController.navigate(Screen.SavedGames.route)
-                            },
 
-                    )*/
                     Image(
-                        painter = painterResource(id = R.drawable.scoreboard_white),
+                        // KMP Syntax: Replaced R.drawable with Res.drawable
+                        painter = painterResource(Res.drawable.scoreboard_white),
                         contentDescription = "Games List Icon",
                         modifier = Modifier.size(55.dp)
                             .clickable {

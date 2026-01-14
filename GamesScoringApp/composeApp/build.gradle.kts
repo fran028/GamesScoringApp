@@ -46,14 +46,13 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            implementation(libs.kotlinx.datetime)
 
             // Lifecycle & ViewModel (KMP versions)
+            implementation(libs.jetbrains.navigation.compose)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-
-            // Navigation (KMP version)
-            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10")
-
+            implementation(libs.jetbrains.navigation.compose)
             // Serialization (Replaces manual JSON parsing)
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 

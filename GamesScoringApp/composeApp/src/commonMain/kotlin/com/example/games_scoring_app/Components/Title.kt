@@ -16,33 +16,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+// CORRECT MULTIPLATFORM IMPORTS
 import androidx.navigation.NavController
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.* // Required for 'Res'
+
 import com.example.games_scoring_app.Theme.LeagueGothic
 import com.example.games_scoring_app.Theme.white
-import com.example.games_scoring_app.R
 import com.example.games_scoring_app.Screen
 
 @Composable
-fun PageTitle(title: String, image: Int, navController: NavController) {
+fun PageTitle(title: String, image: DrawableResource, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(160.dp)
             .padding(0.dp)
-            .background(Color.Transparent, /*shape = androidx.compose.foundation.shape.RoundedCornerShape(50.dp)*/)
+            .background(Color.Transparent)
     ) {
         Image(
-            painter = painterResource(id = image),
+            // KMP Syntax: Removed 'id ='
+            painter = painterResource(image),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillWidth
@@ -66,7 +69,8 @@ fun PageTitle(title: String, image: Int, navController: NavController) {
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.logobig),
+                        // KMP Syntax: Replaced R.drawable with Res.drawable
+                        painter = painterResource(Res.drawable.logobig),
                         contentDescription = "App Image",
                         modifier = Modifier.size(50.dp)
                             .clickable {
@@ -87,17 +91,10 @@ fun PageTitle(title: String, image: Int, navController: NavController) {
                         ),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    /*Image(
-                        painter = painterResource(id = R.drawable.scoreboard),
-                        contentDescription = "App Image",
-                        modifier = Modifier.size(60.dp)
-                            .clickable {
-                                navController.navigate(Screen.SavedGames.route)
-                            },
 
-                    )*/
                     Image(
-                        painter = painterResource(id = R.drawable.setting_line),
+                        // KMP Syntax: Replaced R.drawable with Res.drawable
+                        painter = painterResource(Res.drawable.setting_line),
                         contentDescription = "App Image",
                         modifier = Modifier.size(55.dp)
                             .clickable {

@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // CORRECT Multiplatform Navigation Imports
-import org.jetbrains.androidx.navigation.NavType
-import org.jetbrains.androidx.navigation.compose.NavHost
-import org.jetbrains.androidx.navigation.compose.composable
-import org.jetbrains.androidx.navigation.compose.currentBackStackEntryAsState
-import org.jetbrains.androidx.navigation.compose.rememberNavController
-import org.jetbrains.androidx.navigation.navArgument
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 // Multiplatform Resource Imports
 import org.jetbrains.compose.resources.painterResource
@@ -30,7 +30,6 @@ import gamesscoringapp.composeapp.generated.resources.logobig
 import com.example.games_scoring_app.Data.AppDatabase
 import com.example.games_scoring_app.Pages.*
 import com.example.games_scoring_app.Theme.*
-import com.example.games_scoring_app.ui.theme.Games_Scoring_AppTheme
 
 @Composable // Removed the full androidx.compose prefix to keep it clean
 fun App() {

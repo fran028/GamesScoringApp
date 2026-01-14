@@ -5,20 +5,7 @@ import com.example.games_scoring_app.Theme.gold
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-// import androidx.compose.foundation.layout.FlowRow // No longer needed
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -36,11 +22,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.games_scoring_app.R
 import com.example.games_scoring_app.Theme.LeagueGothic
 import com.example.games_scoring_app.Theme.RobotoCondensed
 import com.example.games_scoring_app.Theme.darkgray
 import com.example.games_scoring_app.Theme.red
+
+// KMP Resource Imports
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.*
 
 @Composable
 fun GameBox(
@@ -51,28 +41,25 @@ fun GameBox(
     textcolor: Color,
     accentColor: Color,
     width: Dp = 0.dp,
-    icon: Int,
+    icon: DrawableResource, // CHANGED: From Int to DrawableResource
     gameType: String = "",
     daysSinceLastPlayed: String,
     players: List<Players>
 ) {
     val iconSize = 32
 
-    // Main container for the entire component
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp) // Space between the box and the player list
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // --- Top Row: Delete Button, Content Box, Play Button ---
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // --- 1. Delete Button (Left Square) ---
+            // --- 1. Delete Button ---
             Box(
-                // --- MODIFICATION: Use fillMaxHeight and aspectRatio to make it a square matching the row height ---
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(48.dp)
@@ -82,18 +69,19 @@ fun GameBox(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.trash),
+                    // KMP Syntax: Use Res.drawable instead of R.drawable
+                    painter = painterResource(Res.drawable.trash),
                     contentDescription = "Delete Game",
-                    modifier = Modifier.size(32.dp) // Icon size can be larger now
+                    modifier = Modifier.size(32.dp)
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // --- 2. Main Content Box (Center) ---
+            // --- 2. Main Content Box ---
             Box(
                 modifier = Modifier
-                    .weight(1f) // Expands to fill available space
+                    .weight(1f)
                     .fillMaxHeight()
                     .background(bgcolor, shape = RoundedCornerShape(10.dp))
                     .clip(RoundedCornerShape(10.dp))
@@ -101,12 +89,10 @@ fun GameBox(
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
-                // --- MODIFICATION: Use a Column to stack Title and Date ---
                 Column(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    // Top part: Icon and Title
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -116,7 +102,8 @@ fun GameBox(
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
-                                painter = painterResource(id = icon),
+                                // KMP Syntax: Pass the DrawableResource directly
+                                painter = painterResource(icon),
                                 contentDescription = "Title Icon",
                                 modifier = Modifier.size(if (gameType == "Generico") (iconSize * 0.25f).dp else (iconSize * 0.75f).dp)
                             )
@@ -138,19 +125,16 @@ fun GameBox(
                                 color = textcolor.copy(alpha = 0.7f),
                                 fontSize = 12.sp,
                             ),
-                            modifier = Modifier.padding(start = 4.dp) // Indent slightly
+                            modifier = Modifier.padding(start = 4.dp)
                         )
                     }
-                    // Bottom part: Date, now correctly under the title
-
                 }
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // --- 3. Play Button (Right Square) ---
+            // --- 3. Play Button ---
             Box(
-                // --- MODIFICATION: Use fillMaxHeight and aspectRatio to make it a square matching the row height ---
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(48.dp)
@@ -160,14 +144,15 @@ fun GameBox(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.play),
+                    // KMP Syntax: Use Res.drawable
+                    painter = painterResource(Res.drawable.play),
                     contentDescription = "Play Game",
-                    modifier = Modifier.size(26.dp) // Icon size can be larger now
+                    modifier = Modifier.size(26.dp)
                 )
             }
         }
 
-        // --- Players List (Below the main row) ---
+        // --- Players List ---
         if (players.isNotEmpty()) {
             val annotatedPlayerString = buildAnnotatedString {
                 val winner = players.find { it.won }
@@ -184,14 +169,12 @@ fun GameBox(
                 append(otherPlayers.joinToString(" / ") { it.name })
             }
 
-            // --- MODIFICATION START ---
-            // Wrap the Text in a Box with a background
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(darkgray, shape = RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
-                    .padding(horizontal = 12.dp, vertical = 8.dp), // Add padding inside the box
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -204,7 +187,6 @@ fun GameBox(
                     textAlign = TextAlign.Center
                 )
             }
-            // --- MODIFICATION END ---
         }
     }
 }

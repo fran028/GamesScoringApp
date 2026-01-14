@@ -1,6 +1,5 @@
 package com.example.games_scoring_app.Games
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,7 +49,6 @@ fun RankingScoreboard(
     onUpdateScore: (Scores) -> Unit
 ) {
     val TAG = "RankingScoreboard"
-    Log.d(TAG, "RankingScoreboard called")
 
     val backgroundColor = if (themeMode == 0) black else white
     val fontColor = if (themeMode == 0) white else black
@@ -192,8 +190,6 @@ fun RankingScoreboard(
                                     )
                                     onAddScore(newScore)
                                 }
-                                Log.d(TAG, "Assigned player ${playerToAssign.player.name} to rank $currentRank")
-
                                 // Update local UI state for immediate feedback
                                 val newAssignments = rankingAssignments.value.toMutableList()
                                 // Clear old assignment for this player

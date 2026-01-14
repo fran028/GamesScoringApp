@@ -13,13 +13,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.games_scoring_app.Theme.LeagueGothic
+
+// KMP Resource Imports
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import gamesscoringapp.composeapp.generated.resources.*
 
 @Composable
 fun SettingsButtonBar(
@@ -29,7 +33,7 @@ fun SettingsButtonBar(
     textcolor: Color,
     width: Dp = 0.dp,
     height: Dp,
-    icon: Int,
+    icon: DrawableResource, // CHANGED: From Int to DrawableResource
     iconSize: Dp = 24.dp,
     doubleIcon: Boolean = false
 ) {
@@ -55,7 +59,8 @@ fun SettingsButtonBar(
         ) {
             if(doubleIcon){
                 Image(
-                    painter = painterResource(id = icon),
+                    // KMP Syntax: Removed 'id ='
+                    painter = painterResource(icon),
                     contentDescription = "Button Icon",
                     modifier = Modifier.size(iconSize)
                 )
@@ -70,7 +75,8 @@ fun SettingsButtonBar(
                 textAlign = TextAlign.Start
             )
             Image(
-                painter = painterResource(id = icon),
+                // KMP Syntax: Removed 'id ='
+                painter = painterResource(icon),
                 contentDescription = "Button Icon",
                 modifier = Modifier.size(iconSize)
             )
