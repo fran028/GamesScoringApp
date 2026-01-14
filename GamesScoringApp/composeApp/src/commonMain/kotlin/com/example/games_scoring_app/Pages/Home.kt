@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +26,8 @@ import com.example.games_scoring_app.Theme.*
 import com.example.games_scoring_app.Viewmodel.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlin.text.toString
+import kotlin.text.toUInt
 
 @Composable
 fun HomePage(navController: NavController) {
@@ -156,7 +159,9 @@ fun HomePage(navController: NavController) {
                             bgcolor = darkgray,
                             accentColor = accentColor,
                             textcolor = buttonColor,
-                            onClick = { navController.navigate(Screen.SetUp.createRoute(type.id, accentColor)) },
+                            onClick = {
+                                navController.navigate(Screen.SetUp.createRoute(type.id, accentColor))
+                            },
                             icon = buttonIcon,
                             timesPlayed = stats.timesPlayed,
                             daysSinceLastPlayed = stats.daysSinceLastPlayed

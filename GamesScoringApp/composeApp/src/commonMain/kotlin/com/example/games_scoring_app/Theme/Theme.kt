@@ -5,12 +5,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import com.example.games_scoring_app.ui.theme.Pink40
-import com.example.games_scoring_app.ui.theme.Pink80
-import com.example.games_scoring_app.ui.theme.Purple40
-import com.example.games_scoring_app.ui.theme.Purple80
-import com.example.games_scoring_app.ui.theme.PurpleGrey40
-import com.example.games_scoring_app.ui.theme.PurpleGrey80
 
 // IMPORTANT: Import your specific Typography variable from the correct package
 // This prevents the conflict with kotlin.text.Typography
@@ -27,9 +21,6 @@ import com.example.games_scoring_app.Theme.white
 */
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
     background = black,
     surface = black,
     onPrimary = white,
@@ -40,9 +31,6 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
     background = white,
     surface = white,
     onPrimary = black,

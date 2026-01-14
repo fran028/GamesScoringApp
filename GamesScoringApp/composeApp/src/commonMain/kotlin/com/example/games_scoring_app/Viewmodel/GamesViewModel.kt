@@ -18,7 +18,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.todayIn
  import kotlin.text.padStart
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class GamesViewModel(private val gamesRepository: GamesRepository) : ViewModel() {
@@ -71,7 +70,7 @@ class GamesViewModel(private val gamesRepository: GamesRepository) : ViewModel()
 
     @OptIn(ExperimentalTime::class)
     private fun getTodaysDate(): String {
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val today = kotlinx.datetime.Clock.System.todayIn(TimeZone.currentSystemDefault())
         return "${today.dayOfMonth.toString().padStart(2, '0')}/${today.monthNumber.toString().padStart(2, '0')}/${today.year}"
     }
 
@@ -106,7 +105,7 @@ class GamesViewModel(private val gamesRepository: GamesRepository) : ViewModel()
             if (year < 100) year += 2000
 
             val lastPlayedDate = LocalDate(year, month, day)
-            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val today = kotlinx.datetime.Clock.System.todayIn(TimeZone.currentSystemDefault())
 
             // This calculates the absolute difference in days
             val days = lastPlayedDate.daysUntil(today)

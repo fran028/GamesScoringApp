@@ -25,4 +25,8 @@ val gold: Color = Color(0xfffdcb60)
 val copper: Color = Color(0xffD9883E)
 val silver: Color = Color(0xffC0C0C0)
 
+val launcher_background: Color = Color(0xff242424)
+val logo_background: Color = Color(0xff242424)
+val logo_red_background: Color = Color(0xff792A2A)
+
 

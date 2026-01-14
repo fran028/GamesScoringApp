@@ -28,7 +28,9 @@ import kotlin.time.Clock
 import org.jetbrains.compose.resources.painterResource
 import gamesscoringapp.composeapp.generated.resources.*
 import kotlin.time.ExperimentalTime
-import androidx.compose.ui.backhandler.BackHandler
+import androidx.compose.runtime.Composable
+import com.example.games_scoring_app.Components.BindBackHandler
+
 
 @OptIn(ExperimentalTime::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -77,7 +79,7 @@ fun GamePage(navController: NavController, gameId: Int, gameTypeId: Int) {
     // Note: BackHandler in KMP requires the 'androidx.compose.runtime:runtime' or
     // 'org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose' which you have.
     // However, Toast is Android-only. For now, we print to console or use a Snackbar.
-    BackHandler(enabled = true) {
+    BindBackHandler(enabled = true) {
         val currentTime = Clock.System.now().toEpochMilliseconds()
         if (currentTime - backPressTime < 2000) {
             navController.navigate(Screen.Home.route) {

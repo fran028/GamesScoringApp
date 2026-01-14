@@ -6,8 +6,6 @@ import androidx.room.PrimaryKey
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.text.padStart
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 @Entity(tableName = "games")
 data class Games(
@@ -16,17 +14,14 @@ data class Games(
     @ColumnInfo(name = "date") val date: String = getTodaysDate(),
 )
 
-/**
- * Helper function to get the current date as a formatted string.
- * This version is Kotlin Multiplatform compatible.
- */
-@OptIn(ExperimentalTime::class)
 private fun getTodaysDate(): String {
-    // Clock.System is the standard KMP way to get the current time
-    val now = Clock.System.now()
+    // This now uses kotlinx.datetime.Clock.System
+    val now = kotlinx.datetime.Clock.System.now()
+
+    // This will now correctly find the extension function
     val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
 
-    // Format: dd/MM/yyyy
+    // Note: Use .dayOfMonth instead of .day (which is the DayOfWeek object)
     val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
     val month = localDateTime.monthNumber.toString().padStart(2, '0')
     val year = localDateTime.year

@@ -61,12 +61,7 @@ import com.example.games_scoring_app.Data.Scores
 import com.example.games_scoring_app.Data.ScoresRepository
 import com.example.games_scoring_app.Data.SettingsRepository
 import com.example.games_scoring_app.Screen
-import com.example.games_scoring_app.Theme.LeagueGothic
-import com.example.games_scoring_app.Theme.black
-import com.example.games_scoring_app.Theme.darkgray
-import com.example.games_scoring_app.Theme.gray
-import com.example.games_scoring_app.Theme.green
-import com.example.games_scoring_app.Theme.white
+import com.example.games_scoring_app.Theme.*
 import com.example.games_scoring_app.Viewmodel.GameTypesViewModel
 import com.example.games_scoring_app.Viewmodel.GameTypesViewModelFactory
 import com.example.games_scoring_app.Viewmodel.GamesViewModel
@@ -87,9 +82,18 @@ import org.jetbrains.compose.resources.painterResource
 import gamesscoringapp.composeapp.generated.resources.*
 
 @Composable
-fun SetupPage(navController: NavController, gameType: Int, gameColor: Color, existingPlayerNames: String?) {
+fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String, existingPlayerNames: String?) {
     val TAG  = "SetupPage"
     val scrollState = rememberScrollState()
+
+    val gameColor = remember(gameColorHex) {
+        try {
+            val colorInt = gameColorHex.toLong(16).toInt()
+            Color(colorInt)
+        } catch (e: Exception) {
+            blue
+        }
+    }
 
     val applicationScope = CoroutineScope(SupervisorJob())
     val database = remember { AppDatabase.getDatabase(applicationScope) }

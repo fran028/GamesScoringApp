@@ -123,12 +123,12 @@ fun MainScreen() {
             ) { backStackEntry ->
                 val gameType = backStackEntry.arguments?.getInt("gameType") ?: 0
                 val hex = backStackEntry.arguments?.getString("gameColor") ?: "FF0000FF"
-                val color = Color(hex.toLong(16))
+                val colorHex = backStackEntry.arguments?.getString("accentColor") ?: "ff0000ff"
                 val playerNamesString = backStackEntry.arguments?.getString("playerNames")
                 SetupPage(
                     navController = navController,
                     gameType = gameType,
-                    gameColor = color,
+                    gameColorHex = colorHex,
                     existingPlayerNames = playerNamesString
                 )
             }

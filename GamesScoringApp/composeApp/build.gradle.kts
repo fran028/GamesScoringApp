@@ -18,6 +18,11 @@ kotlin {
         }
     }
 
+    compilerOptions {
+        // This removes the error project-wide
+        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+    }
+
     room {
         schemaDirectory("$projectDir/schemas")
     }
@@ -47,6 +52,7 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
 
             // Lifecycle & ViewModel (KMP versions)
             implementation(libs.jetbrains.navigation.compose)
