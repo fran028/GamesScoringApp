@@ -31,12 +31,22 @@ import com.example.games_scoring_app.Data.AppDatabase
 import com.example.games_scoring_app.Pages.*
 import com.example.games_scoring_app.Theme.*
 
-@Composable // Removed the full androidx.compose prefix to keep it clean
+@Composable
 fun App() {
-    Games_Scoring_AppTheme {
-        val isDatabaseReady by AppDatabase.isDatabaseReady.collectAsState()
+    // 1. Create a scope that lives with the App
+    val scope = rememberCoroutineScope()
 
-        if (isDatabaseReady) {
+    // 2. Observe the readiness state
+    // Make sure you import: androidx.compose.runtime.collectAsState
+    val isReady by AppDatabase.isDatabaseReady.collectAsState()
+
+    // 3. START the database initialization
+    LaunchedEffect(Unit) {
+        AppDatabase.getDatabase(scope)
+    }
+
+    Games_Scoring_AppTheme {
+        if (isReady) {
             MainScreen()
         } else {
             LoadingScreen()
@@ -122,8 +132,7 @@ fun MainScreen() {
                 )
             ) { backStackEntry ->
                 val gameType = backStackEntry.arguments?.getInt("gameType") ?: 0
-                val hex = backStackEntry.arguments?.getString("gameColor") ?: "FF0000FF"
-                val colorHex = backStackEntry.arguments?.getString("accentColor") ?: "ff0000ff"
+                 val colorHex = backStackEntry.arguments?.getString("gameColor") ?: "ff0000ff"
                 val playerNamesString = backStackEntry.arguments?.getString("playerNames")
                 SetupPage(
                     navController = navController,

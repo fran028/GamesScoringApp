@@ -41,6 +41,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation("androidx.core:core-splashscreen:1.0.1")
             // Added: Requirement for some legacy Android components
             implementation("com.google.android.material:material:1.12.0")
         }

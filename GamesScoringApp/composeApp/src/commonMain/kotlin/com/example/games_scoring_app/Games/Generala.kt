@@ -60,7 +60,7 @@ fun GeneralaScoreboard(
 
     // Calculate total scores directly from the playerWithScores object
     val playerTotals = playersWithScores.map { player ->
-        player.scores.sumOf { it.score }
+        player.scores.sumOf { if (it.score == -1) 0 else it.score }
     }
 
     val backgroundColor = if (themeMode == 0) black else white
@@ -208,15 +208,22 @@ fun GeneralaScoreboard(
                                 val currentScoreValue = existingScore?.score ?: 0
                                 val scoreOptions = valoresGenerala.getOrElse(scoreTypeIndex) { listOf("-", "0", "x") }
 
-                                // Find the index of the current score in the options list to cycle through it
-                                val currentOptionIndex = scoreOptions.indexOf(currentScoreValue.toString()).coerceAtLeast(0)
-
-                                val displayedValue = when (existingScore?.score) {
-                                    null -> "-" // No score entry exists yet
-                                    0 -> "-"    // Score is 0, treat as unfilled
-                                    -1 -> "x"   // Score is -1, it's a crossed-out 'tacha'
-                                    else -> existingScore.score.toString() // Display the actual score number
+                                val currentScoreString = when (currentScoreValue) {
+                                    0 -> "-"
+                                    -1 -> "x"
+                                    else -> currentScoreValue.toString()
                                 }
+
+                                val currentOptionIndex = scoreOptions.indexOf(currentScoreString).coerceAtLeast(0)
+                                //val currentOptionIndex = scoreOptions.indexOf(currentScoreValue.toString()).coerceAtLeast(0)
+
+                                val displayedValue = currentScoreString
+//                                val displayedValue = when (existingScore?.score) {
+//                                    null -> "-" // No score entry exists yet
+//                                    0 -> "-"    // Score is 0, treat as unfilled
+//                                    -1 -> "x"   // Score is -1, it's a crossed-out 'tacha'
+//                                    else -> existingScore.score.toString() // Display the actual score number
+//                                }
 
                                 val boxBackgroundColor = when {
                                     displayedValue == "x" -> backgroundColor
@@ -248,19 +255,14 @@ fun GeneralaScoreboard(
                                             }
 
                                             if (existingScore != null) {
-                                                // Score exists, update it
-                                                val updatedScore = existingScore.copy(score = nextScoreInt)
-                                                onUpdateScore(updatedScore)
-
+                                                onUpdateScore(existingScore.copy(score = nextScoreInt))
                                             } else {
-                                                // No score exists, create a new one
-                                                val newScore = Scores(
+                                                onAddScore(Scores(
                                                     id_player = player.id,
                                                     id_score_type = scoreType.id,
                                                     score = nextScoreInt,
                                                     isFinalScore = false // Or determine this based on game rules
-                                                )
-                                                onAddScore(newScore)
+                                                ))
 
                                             }
                                         },

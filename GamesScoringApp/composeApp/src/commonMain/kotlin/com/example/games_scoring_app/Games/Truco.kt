@@ -247,9 +247,50 @@ private fun PlayerTrucoColumn(
                 textAlign = TextAlign.Right,
             )
         }
-
-
         Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.width(150.dp)
+        ) {
+            // Decrement Button
+            Text(
+                text = "<",
+                fontFamily = LeagueGothic,
+                fontSize = 40.sp,
+                color = if (score > 0) fontColor else gray,
+                modifier = Modifier
+                    .clickable {
+                        if (score > 0) onScoreClick(score - 1)
+                    }
+                    .padding(horizontal = 12.dp)
+            )
+
+            // Current Score
+            Text(
+                text = score.toString(),
+                fontFamily = LeagueGothic,
+                fontSize = 32.sp,
+                color = if (score >= maxScore / 2) colorBuenas else fontColor,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(40.dp)
+            )
+
+            // Increment Button
+            Text(
+                text = ">",
+                fontFamily = LeagueGothic,
+                fontSize = 40.sp,
+                color = if (score < maxScore) fontColor else gray,
+                modifier = Modifier
+                    .clickable {
+                        if (score < maxScore) onScoreClick(score + 1)
+                    }
+                    .padding(horizontal = 12.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
         for (i in 0 until maxScore / 5) {
             Box(
                 modifier = Modifier

@@ -32,7 +32,7 @@ import kotlin.text.toUInt
 @Composable
 fun HomePage(navController: NavController) {
     // KMP String resource syntax
-    val appName = "name"// stringResource(Res.string.app_name)
+    val appName = "Scora"// stringResource(Res.string.app_name)
     val scrollState = rememberScrollState()
 
     val applicationScope = remember { CoroutineScope(SupervisorJob()) }

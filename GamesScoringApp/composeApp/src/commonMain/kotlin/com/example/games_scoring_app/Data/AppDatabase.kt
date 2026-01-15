@@ -15,10 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.concurrent.Volatile
 
-// These tell the compiler that the platform-specific code exists elsewhere
 expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
 
-// Suppression is necessary because Room generates the 'actual' implementation automatically
 @Suppress("NO_ACTUAL_FOR_EXPECT")
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>
 
@@ -44,40 +42,71 @@ abstract class AppDatabase : RoomDatabase() {
         val isDatabaseReady: StateFlow<Boolean> = _isDatabaseReady.asStateFlow()
 
         fun getDatabase(scope: CoroutineScope): AppDatabase {
-            // Replaced 'synchronized' with a simple null-check pattern compatible with KMP
-            val existingInstance = INSTANCE
-            if (existingInstance != null) return existingInstance
+            val existing = INSTANCE
+            if (existing != null) {
+                signalDatabaseOperational()
+                return existing
+            }
 
             val instance = getDatabaseBuilder()
                 .setDriver(BundledSQLiteDriver())
-                .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(AppDatabaseCallback(scope))
                 .build()
 
             INSTANCE = instance
-            signalDatabaseOperational()
+
+            // NEW: Trigger a "Warm-up" query to force the database to open
+            // and fire the onOpen/onCreate callbacks immediately.
+            scope.launch(Dispatchers.IO) {
+                try {
+                    // Simply calling any DAO method forces the connection open
+                    instance.gameTypesDao().getAllGameTypesAsList()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    signalDatabaseOperational() // Fail-safe
+                }
+            }
+
+            // Keep the fallback as a secondary safety measure
+            scope.launch {
+                kotlinx.coroutines.delay(3000)
+                if (!_isDatabaseReady.value) {
+                    signalDatabaseOperational()
+                }
+            }
+
             return instance
         }
 
-        private fun signalDatabaseOperational() {
-            if (!_isDatabaseReady.value) {
-                _isDatabaseReady.value = true
-            }
-        }
-
-        private fun stopSignalDatabaseOperational() {
-            _isDatabaseReady.value = false
+        fun signalDatabaseOperational() {
+            _isDatabaseReady.value = true
         }
     }
 
     private class AppDatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
+        override fun onCreate(connection: SQLiteConnection) {
+            super.onCreate(connection)
+            // This only runs the VERY FIRST time the app is ever installed
+            handleInitialization()
+        }
+
         override fun onOpen(connection: SQLiteConnection) {
             super.onOpen(connection)
+            // This runs every time the app opens
+            handleInitialization()
+        }
+
+        private fun handleInitialization() {
             scope.launch(Dispatchers.IO) {
-                val database = INSTANCE ?: return@launch
-                stopSignalDatabaseOperational()
-                populateDatabase(database.gameTypesDao(), database.settingsDao(), database.scoreTypesDao())
-                signalDatabaseOperational()
+                try {
+                    val db = INSTANCE ?: return@launch
+                    populateDatabase(db.gameTypesDao(), db.settingsDao(), db.scoreTypesDao())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    // This ensures the screen UNLOCKS even if population fails
+                    signalDatabaseOperational()
+                }
             }
         }
 

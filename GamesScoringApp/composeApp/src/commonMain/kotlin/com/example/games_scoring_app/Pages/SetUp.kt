@@ -88,10 +88,12 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
 
     val gameColor = remember(gameColorHex) {
         try {
-            val colorInt = gameColorHex.toLong(16).toInt()
-            Color(colorInt)
+            Color(gameColorHex.toLong(16).toInt())
+
         } catch (e: Exception) {
-            blue
+            println("Color parsing failed for: $gameColorHex - Error: ${e.message}")
+
+            red
         }
     }
 

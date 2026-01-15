@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.times
 import com.example.games_scoring_app.Components.ButtonBar
 import com.example.games_scoring_app.Components.PlayerAmountGrid
 import com.example.games_scoring_app.Theme.*
+import gamesscoringapp.composeapp.generated.resources.Res
+import gamesscoringapp.composeapp.generated.resources.lock
 import kotlinx.coroutines.delay
 
 @Composable
@@ -105,7 +107,6 @@ private fun DiceFace(value: Int, diceSize: Dp) {
         }
     }
 }
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RollDice() {
@@ -117,7 +118,6 @@ fun RollDice() {
     var rollDice by remember { mutableStateOf(false) }
     val lockedDice = remember { mutableStateListOf<Boolean>().apply { addAll(List(maxDiceCount) { false }) } }
 
-    // KMP: Use BoxWithConstraints to get screen width instead of LocalConfiguration
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val screenWidth = maxWidth
         val dicePerRow = 4
@@ -134,7 +134,17 @@ fun RollDice() {
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left
             )
+            // Added instruction text
+            Text(
+                text = "Tap a die to lock/unlock it",
+                fontFamily = LeagueGothic, // Assuming same font family
+                fontSize = 18.sp,
+                color = cream, // Using a lighter color for subtitle
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             Spacer(modifier = Modifier.height(20.dp))
+
             PlayerAmountGrid(
                 maxPlayers = maxDiceCount,
                 minPlayers = minDiceCount,
@@ -148,6 +158,7 @@ fun RollDice() {
                 bgcolor = darkgray,
                 textcolor = white,
             )
+
             Spacer(modifier = Modifier.height(20.dp))
 
             Row(
@@ -202,17 +213,32 @@ fun RollDice() {
                         modifier = Modifier
                             .size(diceSize)
                             .background(backgroundColor, shape = RoundedCornerShape(diceCorner))
-                            .pointerInput(Unit) {
+                            .pointerInput(isSelected, value) { // Re-bind when selection or value changes
                                 detectTapGestures {
+                                    // Requirement: Only allow locking if the die is selected AND has been rolled (value > 0)
                                     if (isSelected && value > 0) {
                                         lockedDice[i] = !lockedDice[i]
                                     }
                                 }
-                            },
-                        contentAlignment = Alignment.Center
+                            }
                     ) {
+                        // 1. Draw the dots ONLY if there is a value
                         if (isSelected && value > 0) {
                             DiceFace(value = value, diceSize = diceSize)
+                        }
+
+                        // 2. Draw the lock icon ONLY if locked
+                        // We move this OUTSIDE the "value > 0" UI block to ensure
+                        // it can display correctly once the state changes.
+                        if (isSelected && isLocked) {
+                            androidx.compose.foundation.Image(
+                                painter = org.jetbrains.compose.resources.painterResource(Res.drawable.lock),
+                                contentDescription = "Locked",
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(4.dp)
+                                    .size(diceSize / 4)
+                            )
                         }
                     }
                 }
