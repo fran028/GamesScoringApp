@@ -23,6 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -48,7 +50,7 @@ fun RankingScoreboard(
     onAddScore: (Scores) -> Unit,
     onUpdateScore: (Scores) -> Unit
 ) {
-    val TAG = "RankingScoreboard"
+    val haptic = LocalHapticFeedback.current
 
     val backgroundColor = if (themeMode == 0) black else white
     val fontColor = if (themeMode == 0) white else black
@@ -139,6 +141,7 @@ fun RankingScoreboard(
                             playerIndex = index,
                             isSelected = selectedPlayerIndex == index,
                             onPlayerClicked = { clickedPlayerIndex ->
+                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                                 selectedPlayerIndex = clickedPlayerIndex
                             },
                             buttonColor = buttonColor,
@@ -172,6 +175,8 @@ fun RankingScoreboard(
                             .fillMaxWidth()
                             .height(45.dp)
                             .clickable(enabled = selectedPlayerIndex != -1) {
+
+                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                                 val playerToAssign = playersWithScores[selectedPlayerIndex]
                                 val existingScore = playerToAssign.scores.find { it.id_score_type == finalScoreType.id }
 

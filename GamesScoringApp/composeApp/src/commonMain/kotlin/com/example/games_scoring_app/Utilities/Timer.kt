@@ -23,10 +23,14 @@ import gamesscoringapp.composeapp.generated.resources.Res
 import gamesscoringapp.composeapp.generated.resources.*
 
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun Timer() {
+
+    val haptic = LocalHapticFeedback.current
     var totalTime by remember { mutableStateOf(60L) }
     var timeLeft by remember { mutableStateOf(totalTime) }
     var isRunning by remember { mutableStateOf(false) }
@@ -38,8 +42,27 @@ fun Timer() {
         if (isRunning && timeLeft > 0) {
             delay(1000L)
             timeLeft--
+            if (timeLeft in 11..totalTime) {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            }
+            if (timeLeft in 1..10) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
         } else if (timeLeft == 0L) {
             isRunning = false
+        }
+    }
+
+    LaunchedEffect(timeLeft, isRunning) {
+        // Only fire if the timer actually reached 0 (and isn't just initialized at 0)
+        if (timeLeft == 0L && !isRunning && totalTime > 0) {
+            repeat(3) {
+                repeat(25) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    delay(50L)
+                }
+                delay(100)
+            }
         }
     }
 
@@ -69,6 +92,7 @@ fun Timer() {
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = blue),
                     onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         val h = hInput.toLongOrNull() ?: 0L
                         val m = mInput.toLongOrNull() ?: 0L
                         val s = sInput.toLongOrNull() ?: 0L
@@ -90,38 +114,18 @@ fun Timer() {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-//        // --- 1. TIME SELECTION (TOP) ---
-//        Text(
-//            text = "SELECT TIME (SECONDS)",
-//            fontFamily = LeagueGothic,
-//            fontSize = 24.sp,
-//            color = white
-//        )
-//        Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-//            timeOptions.forEach { time ->
-//                Button(
-//                    onClick = { if (!isRunning) { totalTime = time; timeLeft = time } },
-//                    modifier = Modifier.padding(horizontal = 4.dp),
-//                    shape = RoundedCornerShape(10.dp),
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = if (totalTime == time) blue else gray,
-//                        contentColor = if (totalTime == time) black else white
-//                    ),
-//                    enabled = !isRunning
-//                ) {
-//                    Text(text = time.toString()+"s", fontFamily = LeagueGothic, fontSize = 24.sp)
-//                }
-//            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(darkgray, shape = RoundedCornerShape(10.dp))
                     .padding(horizontal = 20.dp, vertical = 5.dp)
-                    .clickable { showTimePicker = true }, // Opens popup
+                    .clickable {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        showTimePicker = true }, // Opens popup
                 contentAlignment = Alignment.Center
             ) {
                 val hours = timeLeft / 3600
@@ -273,7 +277,9 @@ fun Timer() {
                 horizontalAlignment = Alignment.End
             ) {
                 IconButton(
-                    onClick = { showTimePicker = true },
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        showTimePicker = true },
                     modifier = Modifier.size(100.dp)
                         .background(yellow, RoundedCornerShape(10.dp))
                 ) {
@@ -286,7 +292,9 @@ fun Timer() {
                 }
 
                 IconButton(
-                    onClick = { isRunning = !isRunning },
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        isRunning = !isRunning },
                     modifier = Modifier.size(100.dp)
                         .background(if (isRunning) yellow else green, RoundedCornerShape(10.dp))
                 ) {
@@ -299,7 +307,9 @@ fun Timer() {
                 }
 
                 IconButton(
-                    onClick = { isRunning = false; timeLeft = totalTime},
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        isRunning = false; timeLeft = totalTime},
                         modifier = Modifier.size(100.dp).background(red, RoundedCornerShape(10.dp))
                 ) {
                     Icon(
@@ -312,6 +322,7 @@ fun Timer() {
 
                 Button(
                     onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
                         // Increase both to keep the hourglass visual consistent
                         totalTime += 10
                         timeLeft += 10

@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,45 +39,54 @@ fun PlayerAmountGrid(
     textcolor: Color = white,
     selectedbgcolor: Color = blue,
 ) {
-    // We use BoxWithConstraints to get the width available for this component
-    // instead of LocalConfiguration (which is Android-only).
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .background(darkgray, shape = RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
     ) {
-        val screenWidth = maxWidth // maxWidth comes from BoxWithConstraints
+        val haptic = LocalHapticFeedback.current
+        val screenWidth = maxWidth
+        val spacing = 4.dp
+        val horizontalPadding = 32.dp // Total padding (8.dp left + 8.dp right)
 
-        val buttonWidth = remember(maxPlayers, screenWidth) {
-            // Subtracting padding (16dp total) and spacing between buttons
-            (screenWidth - 16.dp - (maxPlayers - 1) * 4.dp) / maxPlayers
+        // Calculate width based on 8 items to keep button size consistent across rows
+        val buttonWidth = remember(screenWidth) {
+            (screenWidth - horizontalPadding - (7 * spacing)) / 8
         }.coerceAtLeast(40.dp)
 
         Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(vertical = 16.dp, horizontal = 8.dp),
             contentAlignment = Alignment.Center
         ) {
             FlowRow(
-                maxItemsInEachRow = maxPlayers,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth(),
+                maxItemsInEachRow = 8,
+                // Arrangement.Center centers the items in the row if they don't fill the max width
+                horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(spacing),
             ) {
                 for (i in 1..maxPlayers) {
+                    val isEnabled = i in minPlayers..maxPlayers
                     Button(
                         onClick = {
-                            if (i in minPlayers..maxPlayers) {
+                            if (isEnabled) {
+                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                                 onPlayerAmountSelected(i)
+                            } else {
+                                haptic.performHapticFeedback(HapticFeedbackType.Reject)
                             }
                         },
                         modifier = Modifier
                             .width(buttonWidth)
                             .height(64.dp),
                         shape = RoundedCornerShape(5.dp),
+                        // Dim the color if the player amount is below the minimum required
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (i <= selectedAmount) selectedbgcolor else bgcolor,
-                            contentColor = textcolor
+                            contentColor = if (isEnabled) textcolor else textcolor.copy(alpha = 0.3f)
                         ),
                         contentPadding = PaddingValues(0.dp)
                     ) {
@@ -87,7 +98,6 @@ fun PlayerAmountGrid(
                                 text = i.toString(),
                                 style = TextStyle(
                                     fontFamily = LeagueGothic,
-                                    color = textcolor,
                                     fontSize = 48.sp,
                                     textAlign = TextAlign.Center,
                                 ),

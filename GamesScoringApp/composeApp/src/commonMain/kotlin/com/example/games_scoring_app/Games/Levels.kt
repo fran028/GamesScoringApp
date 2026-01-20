@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,7 +44,7 @@ fun LevelsScoreboard(
     onAddScore: (Scores) -> Unit,
     onUpdateScore: (Scores) -> Unit
 ) {
-    val TAG = "LevelsScoreboard"
+
 
     val backgroundColor = if (themeMode == 0) black else white
     val fontColor = if (themeMode == 0) white else black
@@ -148,6 +150,9 @@ private fun PlayerLevelColumn(
     buttonColor: Color,
     buttonFontColor: Color
 ) {
+
+    val haptic = LocalHapticFeedback.current
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -185,7 +190,9 @@ private fun PlayerLevelColumn(
                     shape = RoundedCornerShape(7.5.dp)
                 )
                 .padding(2.5.dp)
-                .clickable { onLevelDown() },
+                .clickable {
+                    haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+                    onLevelDown() },
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -227,7 +234,9 @@ private fun PlayerLevelColumn(
                 .height(45.dp)
                 .background(green, shape = RoundedCornerShape(7.5.dp))
                 .padding(2.5.dp)
-                .clickable { onLevelUp() },
+                .clickable {
+                    haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+                    onLevelUp() },
             contentAlignment = Alignment.Center
         ) {
             Text(

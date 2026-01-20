@@ -29,6 +29,8 @@ import org.jetbrains.compose.resources.painterResource
 import gamesscoringapp.composeapp.generated.resources.*
 import kotlin.time.ExperimentalTime
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import com.example.games_scoring_app.Components.BindBackHandler
 
 
@@ -41,6 +43,9 @@ fun GamePage(navController: NavController, gameId: Int, gameTypeId: Int) {
         }
         return
     }
+
+
+    val haptic = LocalHapticFeedback.current
 
     val scrollState = rememberScrollState()
     val applicationScope = remember { CoroutineScope(SupervisorJob()) }
@@ -150,6 +155,7 @@ fun GamePage(navController: NavController, gameId: Int, gameTypeId: Int) {
                         textcolor = white,
                         width = 175.dp,
                         onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             coroutineScope.launch {
                                 val newGameId = gamesViewModel.addNewGame(Games(id_GameType = gameTypeId))
                                 playersWithScores.forEach {
@@ -169,6 +175,7 @@ fun GamePage(navController: NavController, gameId: Int, gameTypeId: Int) {
                         textcolor = white,
                         width = 175.dp,
                         onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                             val currentPlayerNames = playersWithScores.map { it.player.name }
                             navController.navigate(Screen.SetUp.createRouteWithPlayers(gameTypeId, accentColor, currentPlayerNames))
                         }

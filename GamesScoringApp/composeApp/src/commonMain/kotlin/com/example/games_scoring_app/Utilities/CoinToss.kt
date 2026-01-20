@@ -26,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +46,8 @@ import kotlin.random.Random
 
 @Composable
 fun CoinTosser() {
+
+    val haptic = LocalHapticFeedback.current
     var result by remember { mutableStateOf("Flip the coin!") }
     var finalFaceIsHeads by remember { mutableStateOf(true) }
 
@@ -100,6 +104,7 @@ fun CoinTosser() {
 
         Button(
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 if (rotation.isRunning) return@Button
 
                 coroutineScope.launch {
@@ -112,6 +117,13 @@ fun CoinTosser() {
                     )
                     rotation.snapTo(0f)
                     result = if (flipToHeads) "HEADS" else "TAILS"
+//                    repeat(3) { i ->
+//                        haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+//                        // Gradually increase the delay to simulate the coin losing energy
+//                        kotlinx.coroutines.delay(70L + (i * 40L))
+//                    }
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+
                 }
             },
             shape = RoundedCornerShape(10.dp),

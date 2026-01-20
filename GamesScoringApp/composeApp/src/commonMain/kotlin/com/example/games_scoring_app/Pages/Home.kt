@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.jetbrains.compose.resources.stringResource
@@ -31,6 +33,10 @@ import kotlin.text.toUInt
 
 @Composable
 fun HomePage(navController: NavController) {
+
+
+    val haptic = LocalHapticFeedback.current
+
     // KMP String resource syntax
     val appName = stringResource(Res.string.app_name)
     val scrollState = rememberScrollState()
@@ -120,6 +126,8 @@ fun HomePage(navController: NavController) {
                         accentColor = accentColor,
                         textcolor = buttonColor,
                         onClick = {
+
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                             navController.navigate(Screen.Game.createRoute(game.id, game.id_GameType))
                         },
                         icon = buttonIcon,
@@ -160,6 +168,7 @@ fun HomePage(navController: NavController) {
                             accentColor = accentColor,
                             textcolor = buttonColor,
                             onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 navController.navigate(Screen.SetUp.createRoute(type.id, accentColor))
                             },
                             icon = buttonIcon,
@@ -191,7 +200,10 @@ fun HomePage(navController: NavController) {
                 bgcolor = darkgray,
                 accentColor = cream,
                 textcolor = buttonColor,
-                onClick = { navController.navigate(Screen.Utilities.createRoute(1)) },
+                onClick = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    navController.navigate(Screen.Utilities.createRoute(1)) },
                 icon = Res.drawable.dices,
                 description = "Roll some dice and see what happens!"
             )
@@ -201,7 +213,10 @@ fun HomePage(navController: NavController) {
                 bgcolor = darkgray,
                 accentColor = cream,
                 textcolor = buttonColor,
-                onClick = { navController.navigate(Screen.Utilities.createRoute(2)) },
+                onClick = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    navController.navigate(Screen.Utilities.createRoute(2)) },
                 icon = Res.drawable.coin_toss,
                 description = "Toss a coin to see if it lands on heads or tails."
             )
@@ -211,7 +226,10 @@ fun HomePage(navController: NavController) {
                 bgcolor = darkgray,
                 accentColor = cream,
                 textcolor = buttonColor,
-                onClick = { navController.navigate(Screen.Utilities.createRoute(3)) },
+                onClick = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    navController.navigate(Screen.Utilities.createRoute(3)) },
                 icon = Res.drawable.sand_clock,
                 description = "Count down timer"
             )

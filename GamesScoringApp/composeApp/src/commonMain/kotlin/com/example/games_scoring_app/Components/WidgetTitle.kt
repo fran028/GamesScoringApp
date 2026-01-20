@@ -22,7 +22,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +41,7 @@ import com.example.games_scoring_app.Theme.white
 
 @Composable
 fun WidgetTitle(title: String, image: DrawableResource, navController: NavController) {
+    val haptic = LocalHapticFeedback.current
     Row (
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
@@ -82,6 +85,7 @@ fun WidgetTitle(title: String, image: DrawableResource, navController: NavContro
                         contentDescription = "App Image",
                         modifier = Modifier.size(50.dp)
                             .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 navController.navigate(Screen.Home.route)
                             }
                     )
@@ -106,6 +110,7 @@ fun WidgetTitle(title: String, image: DrawableResource, navController: NavContro
                         contentDescription = "Games List Icon",
                         modifier = Modifier.size(55.dp)
                             .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 navController.navigate(Screen.SavedGames.route)
                             }
                     )

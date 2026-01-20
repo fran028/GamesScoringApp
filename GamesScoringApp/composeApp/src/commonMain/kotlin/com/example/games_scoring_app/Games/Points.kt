@@ -31,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -58,7 +60,7 @@ fun PuntosScoreboard(
     // --- NEW: Add lambda for deleting a score ---
     onDeleteScore: (Scores) -> Unit
 ) {
-    val TAG = "PuntosScoreboard"
+    val haptic = LocalHapticFeedback.current
 
     val backgroundColor = if (themeMode == 0) black else white
     val fontColor = if (themeMode == 0) white else black
@@ -100,8 +102,12 @@ fun PuntosScoreboard(
         if (showAddPopup && selectedPlayer != null) {
             ScorePopup(
                 isEditMode = false,
-                onDismiss = { showAddPopup = false },
+                onDismiss = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOff)
+                    showAddPopup = false },
                 onConfirm = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     val scoreValue = inputValue.toIntOrNull()
                     if (scoreValue != null) {
                         val newScore = Scores(
@@ -128,8 +134,13 @@ fun PuntosScoreboard(
         if (showEditPopup && selectedPlayer != null && selectedScore != null) {
             ScorePopup(
                 isEditMode = true,
-                onDismiss = { showEditPopup = false },
+                onDismiss = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOff)
+                    showEditPopup = false },
                 onConfirm = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     val scoreValue = inputValue.toIntOrNull()
                     if (scoreValue != null) {
                         // Create a copy of the selected score with the updated value
@@ -140,6 +151,7 @@ fun PuntosScoreboard(
                     inputValue = ""
                 },
                 onDelete = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Reject)
                     onDeleteScore(selectedScore!!)
                     showEditPopup = false
                     inputValue = ""
@@ -175,11 +187,13 @@ fun PuntosScoreboard(
                         maxScore = maxScore,
                         width = width,
                         onAddScoreClicked = {
+                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                             selectedPlayer = playerWithScores
                             showAddPopup = true
                         },
                         // --- NEW: Handle score clicks ---
                         onScoreClicked = { score ->
+                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                             selectedPlayer = playerWithScores
                             selectedScore = score
                             inputValue = score.score.toString() // Pre-fill the input

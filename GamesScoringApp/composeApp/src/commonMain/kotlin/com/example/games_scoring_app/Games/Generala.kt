@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,8 +40,7 @@ fun GeneralaScoreboard(
     onAddScore: (Scores) -> Unit,
     onUpdateScore: (Scores) -> Unit
 ) {
-    val TAG = "GeneralaScoreboard"
-
+    val haptic = LocalHapticFeedback.current
     // These are the UI labels for the rows, which should match the order from the database
     val opcionesGenerala = scoreTypes.map { it.name }
 
@@ -246,6 +247,8 @@ fun GeneralaScoreboard(
                                         .padding(0.dp)
                                         .clickable {
                                             // --- DATABASE LOGIC ---
+
+                                            haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
                                             val nextOptionIndex = (currentOptionIndex + 1) % scoreOptions.size
                                             val nextValueStr = scoreOptions[nextOptionIndex]
                                             val nextScoreInt = when (nextValueStr) {

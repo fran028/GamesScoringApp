@@ -35,9 +35,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -128,6 +131,7 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
     val defaultNames = listOf("P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10")
     val showSetup = remember { mutableStateOf(false) }
 
+    val haptic = LocalHapticFeedback.current
 
     LaunchedEffect(key1 = Unit) {
         gameTypesViewModel.getAllGameTypes()
@@ -258,6 +262,7 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
                             .pointerInput(Unit) {
                                 if (!isSelected && i == selectedPlayerCount) {
                                     detectTapGestures {
+                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                         selectedPlayerCount++
                                     }
                                 }
@@ -294,9 +299,13 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
                                     )
                                 )
                             },
-                            modifier = modifier.border(
-                                border,
-                                shape = RoundedCornerShape(10.dp)
+                            modifier = modifier.onFocusChanged { focusState ->
+                                if (focusState.isFocused) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                                }
+                                }.border(
+                                    border,
+                                    shape = RoundedCornerShape(10.dp)
                             ), // Apply the border here
                             shape = RoundedCornerShape(10.dp),
                             textStyle = TextStyle(
@@ -335,6 +344,7 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
                     textcolor = white,
                     onClick = {
 
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         coroutineScope.launch {
                             // FIXED: Corrected logic to match new architecture
                             // 1. Create the new game object and insert it to get its ID.

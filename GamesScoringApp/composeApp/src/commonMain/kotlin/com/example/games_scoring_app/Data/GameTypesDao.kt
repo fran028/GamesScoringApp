@@ -39,4 +39,6 @@ interface GameTypesDao {
 
     @Query("SELECT * FROM gameTypes")
     suspend fun getAllGameTypesAsList(): List<GameTypes>
+
+
 }

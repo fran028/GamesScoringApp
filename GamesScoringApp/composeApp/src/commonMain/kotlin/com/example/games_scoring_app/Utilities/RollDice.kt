@@ -12,7 +12,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -110,6 +112,8 @@ private fun DiceFace(value: Int, diceSize: Dp) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RollDice() {
+
+    val haptic = LocalHapticFeedback.current
     val maxDiceCount = 8
     val minDiceCount = 1
 
@@ -136,7 +140,7 @@ fun RollDice() {
             )
             // Added instruction text
             Text(
-                text = "Tap a die to lock/unlock it",
+                text = "Tap a die to lock/unlock it so it doesn't roll",
                 fontFamily = LeagueGothic, // Assuming same font family
                 fontSize = 18.sp,
                 color = cream, // Using a lighter color for subtitle
@@ -150,6 +154,7 @@ fun RollDice() {
                 minPlayers = minDiceCount,
                 selectedAmount = selectedDiceCount,
                 onPlayerAmountSelected = { amount ->
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     selectedDiceCount = amount
                     for (i in 0 until maxDiceCount) { lockedDice[i] = false }
                 },
@@ -167,7 +172,9 @@ fun RollDice() {
             ) {
                 val buttonWidth = (screenWidth / 2) - (diceSpacing / 2)
                 ButtonBar(
-                    onClick = { rollDice = true },
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        rollDice = true },
                     text = "ROLL DICE",
                     bgcolor = blue,
                     height = 64.dp,
@@ -175,7 +182,10 @@ fun RollDice() {
                     width = buttonWidth
                 )
                 ButtonBar(
-                    onClick = { for (i in 0 until maxDiceCount) { lockedDice[i] = false } },
+                    onClick = {
+
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOff)
+                        for (i in 0 until maxDiceCount) { lockedDice[i] = false } },
                     text = "UNLOCK ALL",
                     bgcolor = yellow,
                     height = 64.dp,
@@ -187,11 +197,15 @@ fun RollDice() {
             LaunchedEffect(rollDice) {
                 if (rollDice) {
                     repeat(10) {
+                        haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+
                         diceValues = List(maxDiceCount) { index ->
                             if (index < selectedDiceCount && !lockedDice[index]) (1..6).random() else diceValues[index]
                         }
                         delay(50)
                     }
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+
                     rollDice = false
                 }
             }
@@ -217,6 +231,7 @@ fun RollDice() {
                                 detectTapGestures {
                                     // Requirement: Only allow locking if the die is selected AND has been rolled (value > 0)
                                     if (isSelected && value > 0) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                                         lockedDice[i] = !lockedDice[i]
                                     }
                                 }

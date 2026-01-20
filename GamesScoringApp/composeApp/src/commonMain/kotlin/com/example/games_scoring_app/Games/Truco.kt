@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +44,7 @@ fun TrucoScoreboard(
     onAddScore: (Scores) -> Unit,
     onUpdateScore: (Scores) -> Unit
 ) {
-    val TAG = "Truco"
+    val haptic = LocalHapticFeedback.current
 
     // Find the relevant ScoreType for Truco, which is usually just one "Final Score".
     val finalScoreType = scoreTypes.find { it.name == "Final Score" }
@@ -102,6 +104,7 @@ fun TrucoScoreboard(
                     score = score1?.score ?: 0,
                     maxScore = maxScore,
                     onScoreClick = { newScoreValue ->
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         // The user clicked a score line. We need to update the database.
                         if (score1 != null) {
                             // If the score object exists, create an updated copy and send it to the ViewModel.
@@ -134,7 +137,7 @@ fun TrucoScoreboard(
                     // 1. Offset: Player Name Box (45.dp) + Initial Spacer (16.dp)
                     //Spacer(modifier = Modifier.height(45.dp + 16.dp))
 
-                    val nameboxHeight = 45+8
+                    val nameboxHeight = 45+8+62
                     val boxesPerHalf = (maxScore / 5) / 2
                     val boxGroupHeight = 9 + 80 + 9 + 16
 
@@ -177,6 +180,8 @@ fun TrucoScoreboard(
                     score = score2?.score ?: 0,
                     maxScore = maxScore,
                     onScoreClick = { newScoreValue ->
+
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         // Same logic as Player 1
                         if (score2 != null) {
                             val updatedScore = score2.copy(score = newScoreValue)
@@ -211,6 +216,7 @@ private fun PlayerTrucoColumn(
     buttonFontColor: Color,
     fontColor: Color
 ) {
+    val haptic = LocalHapticFeedback.current
     val TAG = "Truco"
     Column(
         modifier = Modifier
@@ -261,6 +267,7 @@ private fun PlayerTrucoColumn(
                 color = if (score > 0) fontColor else gray,
                 modifier = Modifier
                     .clickable {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         if (score > 0) onScoreClick(score - 1)
                     }
                     .padding(horizontal = 12.dp)
@@ -284,6 +291,7 @@ private fun PlayerTrucoColumn(
                 color = if (score < maxScore) fontColor else gray,
                 modifier = Modifier
                     .clickable {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         if (score < maxScore) onScoreClick(score + 1)
                     }
                     .padding(horizontal = 12.dp)

@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.concurrent.Volatile
 
 expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
@@ -38,8 +40,13 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        private val initializationMutex = Mutex()
+
         private val _isDatabaseReady = MutableStateFlow(false)
         val isDatabaseReady: StateFlow<Boolean> = _isDatabaseReady.asStateFlow()
+
+        // Flag to prevent multiple concurrent initialization attempts
+        private var isInitializing = false
 
         fun getDatabase(scope: CoroutineScope): AppDatabase {
             val existing = INSTANCE
@@ -55,22 +62,14 @@ abstract class AppDatabase : RoomDatabase() {
 
             INSTANCE = instance
 
-            // NEW: Trigger a "Warm-up" query to force the database to open
-            // and fire the onOpen/onCreate callbacks immediately.
-            scope.launch(Dispatchers.IO) {
-                try {
-                    // Simply calling any DAO method forces the connection open
-                    instance.gameTypesDao().getAllGameTypesAsList()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    signalDatabaseOperational() // Fail-safe
-                }
-            }
+            // Removed manual "Warm-up" query here to prevent race conditions.
+            // Database will open when the first UI component collects from a DAO.
 
-            // Keep the fallback as a secondary safety measure
+            // Safety fallback to unlock UI if database fails to signal ready
             scope.launch {
-                kotlinx.coroutines.delay(3000)
+                kotlinx.coroutines.delay(5000)
                 if (!_isDatabaseReady.value) {
+                    println("DEBUG_DB: Safety timeout triggered")
                     signalDatabaseOperational()
                 }
             }
@@ -81,57 +80,152 @@ abstract class AppDatabase : RoomDatabase() {
         fun signalDatabaseOperational() {
             _isDatabaseReady.value = true
         }
+
+        fun setInitializing(value: Boolean) {
+            isInitializing = value
+        }
+
+        fun getIsInitializing(): Boolean = isInitializing
     }
 
     private class AppDatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
+
         override fun onCreate(connection: SQLiteConnection) {
             super.onCreate(connection)
-            // This only runs the VERY FIRST time the app is ever installed
-            handleInitialization()
+            println("DEBUG_DB: CALLBACK - onCreate")
         }
 
         override fun onOpen(connection: SQLiteConnection) {
             super.onOpen(connection)
-            // This runs every time the app opens
-            handleInitialization()
+            println("DEBUG_DB: CALLBACK - onOpen")
+
+            // Check the static flag to ensure we only start one init coroutine
+            if (!getIsInitializing()) {
+                setInitializing(true)
+                handleInitialization()
+            }
         }
 
         private fun handleInitialization() {
             scope.launch(Dispatchers.IO) {
-                try {
-                    val db = INSTANCE ?: return@launch
-                    populateDatabase(db.gameTypesDao(), db.settingsDao(), db.scoreTypesDao())
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    // This ensures the screen UNLOCKS even if population fails
-                    signalDatabaseOperational()
+                // Use withLock to ensure only ONE coroutine enters this block at a time
+                initializationMutex.withLock {
+                    try {
+                        val db = INSTANCE ?: return@launch
+
+                        // Now this check is 100% thread-safe
+                        populateDatabase(db.gameTypesDao(), db.settingsDao(), db.scoreTypesDao())
+
+                        // Logging for verification
+                        val gameTypes = db.gameTypesDao().getAllGameTypesAsList()
+                        gameTypes.forEach {
+                            println("DEBUG_DB_CONTENT: Type: ${it.name}, ID: ${it.id}")
+                        }
+                    } catch (e: Exception) {
+                        println("DEBUG_DB: Initialization error: ${e.message}")
+                    } finally {
+                        signalDatabaseOperational()
+                    }
                 }
             }
         }
 
         suspend fun populateDatabase(gameTypesDao: GameTypesDao, settingsDao: SettingsDao, scoreTypesDao: ScoreTypesDao) {
-            if (gameTypesDao.getAllGameTypesAsList().isEmpty()) {
+            val existing = gameTypesDao.getAllGameTypesAsList()
+            println("DEBUG_DB: Found ${existing.size} existing game types.")
+
+            if (existing.isEmpty()) {
+                println("DEBUG_DB: Table empty. Inserting default data...")
+
+                // Settings
                 val settings = settingsDao.getSettings()
                 if (settings.none { it.name == "theme" }) {
                     settingsDao.insertSettings(Settings(name = "theme", value = 0))
                 }
 
-                val trucoId = gameTypesDao.insertGameType(GameTypes(name = "Truco", description = "Juego de cartas popular en Argentina.", maxPlayers = 2, minPlayers = 2, maxScore = 30, type = "Cartas"))
-                val generalaId = gameTypesDao.insertGameType(GameTypes(name = "Generala", description = "Juego de dados.", maxPlayers = 8, minPlayers = 1, maxScore = 370, type = "Dados"))
-                val pointsId = gameTypesDao.insertGameType(GameTypes(name = "Points", description = "Contar puntos hasta un objetivo.", maxPlayers = 8, minPlayers = 2, maxScore = 1000, type = "Generico"))
-                val rankingId = gameTypesDao.insertGameType(GameTypes(name = "Ranking", description = "Rankea el resultado.", maxPlayers = 8, minPlayers = 3, maxScore = 0, type = "Generico"))
-                val levelsId = gameTypesDao.insertGameType(GameTypes(name = "Levels", description = "Avanza niveles.", maxPlayers = 8, minPlayers = 1, maxScore = 0, type = "Generico"))
-
-                scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = trucoId.toInt(), name = "Final Score"))
-
-                listOf("1", "2", "3", "4", "5", "6", "Escalera", "Full", "Poker", "Generala", "Generala x2").forEach {
-                    scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = generalaId.toInt(), name = it))
+                // Game Types
+                val truco = gameTypesDao.getGameTypeByName("Truco")
+                if(truco == null) {
+                    val trucoId = gameTypesDao.insertGameType(
+                        GameTypes(
+                            name = "Truco",
+                            description = "Juego de cartas popular en Argentina.",
+                            maxPlayers = 2,
+                            minPlayers = 2,
+                            maxScore = 30,
+                            type = "Cartas"
+                        )
+                    )
+                    scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = trucoId.toInt(), name = "Final Score"))
                 }
 
-                scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = pointsId.toInt(), name = "Final Score"))
-                scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = rankingId.toInt(), name = "Final Score"))
-                scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = levelsId.toInt(), name = "Final Score"))
+                val generala = gameTypesDao.getGameTypeByName("Generala")
+                if(generala == null) {
+                    val generalaId = gameTypesDao.insertGameType(
+                        GameTypes(
+                            name = "Generala",
+                            description = "Juego de dados.",
+                            maxPlayers = 8,
+                            minPlayers = 1,
+                            maxScore = 370,
+                            type = "Dados"
+                        )
+                    )
+
+                    listOf("1", "2", "3", "4", "5", "6", "Escalera", "Full", "Poker", "Generala", "Generala x2").forEach {
+                        scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = generalaId.toInt(), name = it))
+                    }
+                }
+
+                val points = gameTypesDao.getGameTypeByName("Points")
+                if(points == null) {
+                    val pointsId = gameTypesDao.insertGameType(
+                        GameTypes(
+                            name = "Points",
+                            description = "Contar puntos hasta un objetivo.",
+                            maxPlayers = 8,
+                            minPlayers = 2,
+                            maxScore = 1000,
+                            type = "Generico"
+                        )
+                    )
+                    scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = pointsId.toInt(), name = "Final Score"))
+                }
+
+                    val ranking = gameTypesDao.getGameTypeByName("Ranking")
+                if(ranking == null) {
+                    val rankingId = gameTypesDao.insertGameType(
+                        GameTypes(
+                            name = "Ranking",
+                            description = "Rankea el resultado.",
+                            maxPlayers = 8,
+                            minPlayers = 3,
+                            maxScore = 0,
+                            type = "Generico"
+                        )
+                    )
+
+                    scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = rankingId.toInt(), name = "Final Score"))
+                }
+
+                val levels = gameTypesDao.getGameTypeByName("Levels")
+                if(levels == null) {
+                    val levelsId = gameTypesDao.insertGameType(
+                        GameTypes(
+                            name = "Levels",
+                            description = "Avanza niveles.",
+                            maxPlayers = 8,
+                            minPlayers = 1,
+                            maxScore = 0,
+                            type = "Generico"
+                        )
+                    )
+
+                    scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = levelsId.toInt(), name = "Final Score"))
+                }
+                println("DEBUG_DB: Population complete.")
+            } else {
+                println("DEBUG_DB: Population skipped (Data already exists).")
             }
         }
     }
