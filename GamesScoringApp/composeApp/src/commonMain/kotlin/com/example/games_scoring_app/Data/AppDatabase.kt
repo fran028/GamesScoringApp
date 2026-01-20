@@ -24,7 +24,7 @@ expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>
 
 @Database(
     entities = [Players::class, Games::class, Scores::class, GameTypes::class, Settings::class, ScoreTypes::class],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @ConstructedBy(AppDatabaseConstructor::class)

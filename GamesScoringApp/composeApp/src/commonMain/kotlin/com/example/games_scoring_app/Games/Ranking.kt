@@ -93,10 +93,10 @@ fun RankingScoreboard(
             val initialAssignments = MutableList(numPlayers) { -1 }
             playersWithScores.forEachIndexed { playerIndex, playerWithScores ->
                 val rank = playerWithScores.scores.find { it.id_score_type == finalScoreType.id }?.score
-                if (rank != null && rank in 1..numPlayers) {
+                if (rank != null && rank.toInt() in 1..numPlayers) {
                     val rankListIndex = rank - 1 // A rank of 1 maps to index 0
-                    if (initialAssignments[rankListIndex] == -1) { // Avoid overwriting if data is weird
-                        initialAssignments[rankListIndex] = playerIndex
+                    if (initialAssignments[rankListIndex.toInt()] == -1) { // Avoid overwriting if data is weird
+                        initialAssignments[rankListIndex.toInt()] = playerIndex
                     }
                 }
             }
@@ -183,13 +183,13 @@ fun RankingScoreboard(
                                 // --- DATABASE LOGIC ---
                                 if (existingScore != null) {
                                     // Player already has a rank, update it
-                                    val updatedScore = existingScore.copy(score = currentRank)
+                                    val updatedScore = existingScore.copy(score = currentRank.toFloat())
                                     onUpdateScore(updatedScore)
                                 } else {
                                     // Player has no rank yet, create it
                                     val newScore = Scores(
                                         id_player = playerToAssign.player.id,
-                                        score = currentRank,
+                                        score = currentRank.toFloat(),
                                         id_score_type = finalScoreType.id,
                                         isFinalScore = true
                                     )

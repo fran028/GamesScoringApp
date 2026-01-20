@@ -43,7 +43,7 @@ class ScoresViewModel(private val scoresRepository: ScoresRepository) : ViewMode
     fun addEmtpyScoreToAllPlayers(players: List<Players?>){
         viewModelScope.launch(Dispatchers.IO) {
             for (player in players) {
-                val newScore = Scores(id_player = player!!.id, score = 0, isFinalScore = false, id_score_type = 0)
+                val newScore = Scores(id_player = player!!.id, score = 0f, isFinalScore = false, id_score_type = 0)
                 addNewScore(newScore)
             }
         }

@@ -374,7 +374,7 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
                                     val initialScore = Scores(
                                         id_player = newPlayerId.toInt(),
                                         id_score_type = scoreType.id,
-                                        score = 0,
+                                        score = 0f,
                                         isFinalScore = false
                                     )
                                     scoresViewModel.addScore(initialScore)

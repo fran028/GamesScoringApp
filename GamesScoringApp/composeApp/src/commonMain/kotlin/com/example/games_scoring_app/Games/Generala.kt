@@ -31,6 +31,8 @@ import com.example.games_scoring_app.Theme.blue
 import com.example.games_scoring_app.Theme.gray
 import com.example.games_scoring_app.Theme.white
 import com.example.games_scoring_app.Theme.yellow
+import kotlin.text.sumOf
+import kotlin.text.toDouble
 
 @Composable
 fun GeneralaScoreboard(
@@ -61,7 +63,8 @@ fun GeneralaScoreboard(
 
     // Calculate total scores directly from the playerWithScores object
     val playerTotals = playersWithScores.map { player ->
-        player.scores.sumOf { if (it.score == -1) 0 else it.score }
+        player.scores.sumOf { if (it.score == -1f) 0.0 else it.score.toDouble() }.toInt()
+
     }
 
     val backgroundColor = if (themeMode == 0) black else white
@@ -206,13 +209,13 @@ fun GeneralaScoreboard(
                             scoreTypes.forEachIndexed { scoreTypeIndex, scoreType ->
                                 // Find the existing score from the database for this player and this category
                                 val existingScore = playerWithScores.scores.find { it.id_score_type == scoreType.id }
-                                val currentScoreValue = existingScore?.score ?: 0
+                                val currentScoreValue = existingScore?.score ?: 0f
                                 val scoreOptions = valoresGenerala.getOrElse(scoreTypeIndex) { listOf("-", "0", "x") }
 
                                 val currentScoreString = when (currentScoreValue) {
-                                    0 -> "-"
-                                    -1 -> "x"
-                                    else -> currentScoreValue.toString()
+                                    0f -> "-"
+                                    -1f -> "x"
+                                    else -> currentScoreValue.toInt().toString()
                                 }
 
                                 val currentOptionIndex = scoreOptions.indexOf(currentScoreString).coerceAtLeast(0)
@@ -229,13 +232,13 @@ fun GeneralaScoreboard(
                                 val boxBackgroundColor = when {
                                     displayedValue == "x" -> backgroundColor
                                     displayedValue == "-" -> gray
-                                    scoreTypeIndex >= 6 && currentScoreValue == scoreOptions.getOrNull(2)?.toIntOrNull() -> yellow
+                                    scoreTypeIndex >= 6 && currentScoreValue == scoreOptions.getOrNull(2)?.toFloatOrNull() -> yellow
                                     else -> buttonColor
                                 }
                                 val textColor = when {
                                     displayedValue == "x" -> fontColor
                                     displayedValue == "-" -> white
-                                    scoreTypeIndex >= 6 && currentScoreValue == scoreOptions.getOrNull(2)?.toIntOrNull() -> black
+                                    scoreTypeIndex >= 6 && currentScoreValue == scoreOptions.getOrNull(2)?.toFloatOrNull() -> black
                                     else -> buttonFontColor
                                 }
 
@@ -251,19 +254,19 @@ fun GeneralaScoreboard(
                                             haptic.performHapticFeedback(HapticFeedbackType.KeyboardTap)
                                             val nextOptionIndex = (currentOptionIndex + 1) % scoreOptions.size
                                             val nextValueStr = scoreOptions[nextOptionIndex]
-                                            val nextScoreInt = when (nextValueStr) {
-                                                "x" -> -1 // Use -1 to represent 'x' in the database
-                                                "-" -> 0
-                                                else -> nextValueStr.toIntOrNull() ?: 0
+                                            val nextScoreFloat = when (nextValueStr) {
+                                                "x" -> -1f // Use -1 to represent 'x' in the database
+                                                "-" -> 0f
+                                                else -> nextValueStr.toFloatOrNull() ?: 0f
                                             }
 
                                             if (existingScore != null) {
-                                                onUpdateScore(existingScore.copy(score = nextScoreInt))
+                                                onUpdateScore(existingScore.copy(score = nextScoreFloat))
                                             } else {
                                                 onAddScore(Scores(
                                                     id_player = player.id,
                                                     id_score_type = scoreType.id,
-                                                    score = nextScoreInt,
+                                                    score = nextScoreFloat,
                                                     isFinalScore = false // Or determine this based on game rules
                                                 ))
 
@@ -292,7 +295,7 @@ fun GeneralaScoreboard(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = playerTotals.getOrElse(playerIndex) { 0 }.toString(),
+                                    text = playerTotals.getOrElse(playerIndex) { 0 }.toInt().toString(),
                                     fontFamily = LeagueGothic,
                                     fontSize = 24.sp,
                                     color = buttonFontColor,

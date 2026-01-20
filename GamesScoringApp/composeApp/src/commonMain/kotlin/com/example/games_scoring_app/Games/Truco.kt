@@ -101,21 +101,21 @@ fun TrucoScoreboard(
                 PlayerTrucoColumn(
                     playerName = player1.player.name,
                     // Provide the score value, or 0 if it doesn't exist yet.
-                    score = score1?.score ?: 0,
+                    score = score1?.score?.toInt() ?: 0,
                     maxScore = maxScore,
                     onScoreClick = { newScoreValue ->
                         haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         // The user clicked a score line. We need to update the database.
                         if (score1 != null) {
                             // If the score object exists, create an updated copy and send it to the ViewModel.
-                            val updatedScore = score1.copy(score = newScoreValue)
+                            val updatedScore = score1.copy(score = newScoreValue.toFloat())
                             onUpdateScore(updatedScore)
                         } else {
                             // If the score object doesn't exist, create a new one and send it.
                             val newScore = Scores(
                                 id_player = player1.player.id,
                                 id_score_type = finalScoreType.id,
-                                score = newScoreValue,
+                                score = newScoreValue.toFloat(),
                                 isFinalScore = true
                             )
                             onAddScore(newScore)
@@ -177,20 +177,20 @@ fun TrucoScoreboard(
                 // Player 2 Column
                 PlayerTrucoColumn(
                     playerName = player2.player.name,
-                    score = score2?.score ?: 0,
+                    score = score2?.score?.toInt() ?: 0,
                     maxScore = maxScore,
                     onScoreClick = { newScoreValue ->
 
                         haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         // Same logic as Player 1
                         if (score2 != null) {
-                            val updatedScore = score2.copy(score = newScoreValue)
+                            val updatedScore = score2.copy(score = newScoreValue.toFloat())
                             onUpdateScore(updatedScore)
                         } else {
                             val newScore = Scores(
                                 id_player = player2.player.id,
                                 id_score_type = finalScoreType.id,
-                                score = newScoreValue,
+                                score = newScoreValue.toFloat(),
                                 isFinalScore = true
                             )
                             onAddScore(newScore)

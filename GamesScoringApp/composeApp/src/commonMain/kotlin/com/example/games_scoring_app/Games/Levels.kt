@@ -103,10 +103,10 @@ fun LevelsScoreboard(
 
                     PlayerLevelColumn(
                         playerName = playerNameDisplay,
-                        currentLevel = currentLevel,
+                        currentLevel = currentLevel.toInt(),
                         width = width,
                         onLevelUp = {
-                            val newLevel = currentLevel + 1
+                            val newLevel = currentLevel.toInt() + 1f
                             if (levelScore != null) {
                                 // If a score entry exists, update it
                                 onUpdateScore(levelScore.copy(score = newLevel))
@@ -122,8 +122,8 @@ fun LevelsScoreboard(
                             }
                         },
                         onLevelDown = {
-                            if (currentLevel > 0) {
-                                val newLevel = currentLevel - 1
+                            if (currentLevel.toInt() > 0) {
+                                val newLevel = currentLevel.toInt() - 1f
                                 if (levelScore != null) {
                                     // Update the existing score entry
                                     onUpdateScore(levelScore.copy(score = newLevel))
@@ -136,6 +136,7 @@ fun LevelsScoreboard(
                     )
                 }
             }
+            Spacer(Modifier.height(40.dp))
         }
     }
 }

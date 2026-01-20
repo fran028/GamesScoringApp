@@ -108,7 +108,7 @@ fun PuntosScoreboard(
                     showAddPopup = false },
                 onConfirm = {
                     haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                    val scoreValue = inputValue.toIntOrNull()
+                    val scoreValue = inputValue.toFloatOrNull()
                     if (scoreValue != null) {
                         val newScore = Scores(
                             id_player = selectedPlayer!!.player.id,
@@ -141,7 +141,7 @@ fun PuntosScoreboard(
                 onConfirm = {
 
                     haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                    val scoreValue = inputValue.toIntOrNull()
+                    val scoreValue = inputValue.toFloatOrNull()
                     if (scoreValue != null) {
                         // Create a copy of the selected score with the updated value
                         val updatedScore = selectedScore!!.copy(score = scoreValue)
@@ -223,7 +223,7 @@ private fun PlayerPuntosColumn(
     buttonFontColor: Color,
     fontColor: Color
 ) {
-    val totalScore = scores.sumOf { it.score }
+    val totalScore = scores.sumOf { it.score.toDouble() }.toFloat()
     val scrollState = rememberScrollState()
 
     Column(
@@ -258,7 +258,7 @@ private fun PlayerPuntosColumn(
         Column(modifier = Modifier.weight(1f).verticalScroll(scrollState)) {
             scores.forEach { score ->
                 Text(
-                    text = score.score.toString(),
+                    text = formatScore(score.score),
                     fontFamily = LeagueGothic,
                     fontSize = 36.sp,
                     color = fontColor,
@@ -274,7 +274,7 @@ private fun PlayerPuntosColumn(
 
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = totalScore.toString(),
+            text = formatScore(totalScore),
             fontFamily = LeagueGothic,
             fontSize = 36.sp,
             color = if (maxScore > 0 && totalScore >= maxScore) red else green,
@@ -370,4 +370,19 @@ private fun ScorePopup(
             }
         }
     )
+}
+
+fun formatScore(score: Float): String {
+    return when {
+        // Million logic: 1M or 1.5M
+        score >= 1_000_000 -> {
+            val millions = score / 1_000_000.0
+            if (millions % 1.0 == 0.0) "${millions.toInt()}M" else "${(millions * 10).toInt() / 10.0}M"
+        }
+        // Thousands logic: 1k, 2k
+        score >= 1_000 -> "${(score / 1_000).toInt()}k"
+
+        // Standard logic: Remove .0 if it's a whole number
+        else -> if (score % 1.0f == 0.0f) score.toInt().toString() else score.toString()
+    }
 }
