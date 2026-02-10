@@ -1,5 +1,6 @@
 package com.example.games_scoring_app.Components
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,11 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -33,8 +36,19 @@ fun LoadingMessage(text: String = "LOADING", themeMode: Int, wheelColor: Color =
     val backgroundColor = if (themeMode == 0) black else white
     val fontColor = if (themeMode == 0) white else black
 
-    // In KMP, we use the generated Res object instead of R.drawable
-    val image = if (themeMode == 0) Res.drawable.logobig else Res.drawable.logobig_negro
+    val image = Res.drawable.logo
+
+    // Infinite Rotation Animation
+    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "sandclockRotation"
+    )
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -43,10 +57,9 @@ fun LoadingMessage(text: String = "LOADING", themeMode: Int, wheelColor: Color =
     ) {
         Spacer(modifier = Modifier.height(200.dp))
         Image(
-            // KMP Syntax: removed 'id =' parameter
             painter = painterResource(image),
             contentDescription = "App Image",
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.size(125.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -58,6 +71,14 @@ fun LoadingMessage(text: String = "LOADING", themeMode: Int, wheelColor: Color =
             ),
             textAlign = TextAlign.Center
         )
-        CircularProgressIndicator(color = wheelColor)
+        Spacer(Modifier.height(32.dp))
+        Icon(
+            painter = painterResource(Res.drawable.sand_clock), // Ensure this exists in your commonMain/composeResources/drawable
+            contentDescription = "Loading",
+            tint = wheelColor,
+            modifier = Modifier
+                .size(64.dp)
+                .rotate(rotation)
+        )
     }
 }

@@ -1,5 +1,11 @@
 package com.example.games_scoring_app
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -7,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +37,10 @@ import gamesscoringapp.composeapp.generated.resources.logobig
 import com.example.games_scoring_app.Data.AppDatabase
 import com.example.games_scoring_app.Pages.*
 import com.example.games_scoring_app.Theme.*
+import gamesscoringapp.composeapp.generated.resources.app_name
+import gamesscoringapp.composeapp.generated.resources.logo
+import gamesscoringapp.composeapp.generated.resources.sand_clock
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun App() {
@@ -56,6 +67,18 @@ fun App() {
 
 @Composable
 fun LoadingScreen() {
+
+//    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
+//    val rotation by infiniteTransition.animateFloat(
+//        initialValue = 0f,
+//        targetValue = 360f,
+//        animationSpec = infiniteRepeatable(
+//            animation = tween(1500, easing = LinearEasing),
+//            repeatMode = RepeatMode.Restart
+//        ),
+//        label = "sandclockRotation"
+//    )
+
     Box( // Simplified: removed long androidx.compose.foundation... prefixes
         modifier = Modifier.fillMaxSize().background(black),
         contentAlignment = Alignment.Center
@@ -66,13 +89,13 @@ fun LoadingScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
             Image(
-                painter = painterResource(Res.drawable.logobig),
+                painter = painterResource(Res.drawable.logo),
                 contentDescription = "App Image",
                 modifier = Modifier.size(100.dp)
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "LOADING",
+                text = stringResource(Res.string.app_name).uppercase(),
                 style = TextStyle(
                     fontFamily = LeagueGothic,
                     fontSize = 60.sp,
@@ -80,7 +103,15 @@ fun LoadingScreen() {
                 ),
                 textAlign = TextAlign.Center
             )
-            CircularProgressIndicator(color = white)
+//            Spacer(Modifier.height(32.dp))
+//            Icon(
+//                painter = painterResource(Res.drawable.sand_clock), // Ensure this exists in your commonMain/composeResources/drawable
+//                contentDescription = "Loading",
+//                tint = white,
+//                modifier = Modifier
+//                    .size(42.dp)
+//                    .rotate(rotation)
+//            )
         }
     }
 }
@@ -132,7 +163,7 @@ fun MainScreen() {
                 )
             ) { backStackEntry ->
                 val gameType = backStackEntry.arguments?.getInt("gameType") ?: 0
-                 val colorHex = backStackEntry.arguments?.getString("gameColor") ?: "ff0000ff"
+                val colorHex = backStackEntry.arguments?.getString("gameColor") ?: "ff0000ff"
                 val playerNamesString = backStackEntry.arguments?.getString("playerNames")
                 SetupPage(
                     navController = navController,

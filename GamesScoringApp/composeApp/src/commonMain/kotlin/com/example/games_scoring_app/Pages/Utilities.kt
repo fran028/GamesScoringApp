@@ -28,6 +28,8 @@ import com.example.games_scoring_app.Data.SettingsRepository
 import com.example.games_scoring_app.Theme.black
 import com.example.games_scoring_app.Theme.white
 import com.example.games_scoring_app.Utilities.CoinTosser
+import com.example.games_scoring_app.Utilities.PlayerPicker
+import com.example.games_scoring_app.Utilities.RandomNumberGenerator
 import com.example.games_scoring_app.Utilities.RollDice
 import com.example.games_scoring_app.Utilities.Timer
 import com.example.games_scoring_app.Viewmodel.SettingsViewModel
@@ -70,6 +72,14 @@ fun UtilitiesPage(navController: NavController, utilityId: Int) {
             title = "Timer"
             banner = Res.drawable.clocks_banner
         }
+        4 -> {
+            title = "Random Nº"
+            banner = Res.drawable.numbers_banner
+        }
+        5 -> {
+            title = "Player Picker"
+            banner = Res.drawable.tickets_banner
+        }
     }
 
     Column(
@@ -98,6 +108,12 @@ fun UtilitiesPage(navController: NavController, utilityId: Int) {
                 }
                 3 -> {
                     Timer()
+                }
+                4 -> {
+                    RandomNumberGenerator()
+                }
+                5 -> {
+                    PlayerPicker()
                 }
             }
         }

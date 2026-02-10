@@ -233,6 +233,32 @@ fun HomePage(navController: NavController) {
                 icon = Res.drawable.sand_clock,
                 description = "Count down timer"
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            UtilitiesBox(
+                title = "NUMBER GENERATOR",
+                bgcolor = darkgray,
+                accentColor = cream,
+                textcolor = buttonColor,
+                onClick = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    navController.navigate(Screen.Utilities.createRoute(4)) },
+                icon = Res.drawable.random,
+                description = "Count down timer"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            UtilitiesBox(
+                title = "PLAYER PICKER",
+                bgcolor = darkgray,
+                accentColor = cream,
+                textcolor = buttonColor,
+                onClick = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    navController.navigate(Screen.Utilities.createRoute(5)) },
+                icon = Res.drawable.lottery,
+                description = "Count down timer"
+            )
         }
         Spacer(modifier = Modifier.height(40.dp))
     }
