@@ -137,7 +137,7 @@ fun Timer() {
                 Text(
                     text = timeString,
                     fontFamily = LeagueGothic,
-                    fontSize = 90.sp,
+                    fontSize = 120.sp,
                     color = white,
                     textAlign = TextAlign.Center
                 )

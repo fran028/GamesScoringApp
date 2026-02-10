@@ -42,6 +42,8 @@ import com.example.games_scoring_app.Data.PlayerWithScores
 import com.example.games_scoring_app.Data.ScoreTypes
 import com.example.games_scoring_app.Data.Scores
 import com.example.games_scoring_app.Theme.LeagueGothic
+import com.example.games_scoring_app.Theme.RobotoCondensed
+import com.example.games_scoring_app.Theme.RobotoMono
 import com.example.games_scoring_app.Theme.black
 import com.example.games_scoring_app.Theme.blue
 import com.example.games_scoring_app.Theme.green
@@ -275,7 +277,7 @@ private fun PlayerPuntosColumn(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = formatScore(totalScore),
-            fontFamily = LeagueGothic,
+            fontFamily = RobotoCondensed,
             fontSize = 36.sp,
             color = if (maxScore > 0 && totalScore >= maxScore) red else green,
             textAlign = TextAlign.Center,

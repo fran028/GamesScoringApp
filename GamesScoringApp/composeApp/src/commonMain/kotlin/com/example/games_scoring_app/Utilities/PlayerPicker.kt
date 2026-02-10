@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,6 +35,7 @@ fun PlayerPicker() {
     var selectedPlayer by remember { mutableStateOf<Pair<String, Color>?>(null) }
     var isSpinning by remember { mutableStateOf(false) }
     var rotationAngle by remember { mutableStateOf(0f) }
+    val haptic = LocalHapticFeedback.current
 
     val scope = rememberCoroutineScope()
 
@@ -98,6 +101,7 @@ fun PlayerPicker() {
                 IconButton(
                     onClick = {
                         if (playerName.isNotBlank()) {
+                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                             players.add(playerName)
                             playerName = ""
                         }
@@ -157,11 +161,15 @@ fun PlayerPicker() {
                 enabled = !isSpinning && players.size > 1,
                 onClick = {
                     scope.launch {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         isSpinning = true
                         val winnerIndex = Random.nextInt(players.size)
                         val sliceAngle = 360f / players.size
                         // 270 degrees is the top of the wheel in Compose Canvas
                         val targetRotation = (360f * 5) + (270f - (winnerIndex * sliceAngle) - (sliceAngle / 2))
+
+                        // --- NEW: Add state to track the last passed segment ---
+                        var lastPassedSegment by mutableStateOf(-1)
 
                         animate(
                             initialValue = rotationAngle % 360f,
@@ -169,12 +177,21 @@ fun PlayerPicker() {
                             animationSpec = tween(durationMillis = 3000, easing = FastOutSlowInEasing)
                         ) { value, _ ->
                             rotationAngle = value
+
+                            // --- NEW: Haptic feedback logic ---
+                            val currentSegment = ((value + (sliceAngle / 2) - 270f) / sliceAngle).toInt()
+                            if (currentSegment != lastPassedSegment) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                lastPassedSegment = currentSegment
+                            }
+                            // --- End of new logic ---
                         }
 
                         selectedPlayer = players[winnerIndex] to availableColors[winnerIndex % availableColors.size]
                         isSpinning = false
                     }
                 }
+
             ) {
                 Text( text = if (players.size < 2) "Add more players" else "Spin the Wheel!",
                     fontFamily = RobotoCondensed,
@@ -231,6 +248,8 @@ fun PlayerPicker() {
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(onClick = {
+
+                            haptic.performHapticFeedback(HapticFeedbackType.Reject)
                             if (selectedPlayer?.first == player) selectedPlayer = null
                             players.remove(player)
                         }) {

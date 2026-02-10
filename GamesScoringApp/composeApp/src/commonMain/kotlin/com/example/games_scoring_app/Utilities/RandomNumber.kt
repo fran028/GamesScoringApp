@@ -12,12 +12,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.games_scoring_app.Theme.LeagueGothic
 import com.example.games_scoring_app.Theme.RobotoCondensed
+import com.example.games_scoring_app.Theme.RobotoMono
 import com.example.games_scoring_app.Theme.black
 import com.example.games_scoring_app.Theme.blue
 import com.example.games_scoring_app.Theme.darkgray
@@ -25,30 +28,48 @@ import com.example.games_scoring_app.Theme.gray
 import com.example.games_scoring_app.Theme.green
 import com.example.games_scoring_app.Theme.red
 import com.example.games_scoring_app.Theme.white
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 @Composable
 fun RandomNumberGenerator() {
-    // State for input strings
+    val haptic = LocalHapticFeedback.current
+
     var minInput by remember { mutableStateOf("") }
     var maxInput by remember { mutableStateOf("") }
-
-    // State for the warning message
     var warningMessage by remember { mutableStateOf<String?>(null) }
 
-    val limits = 100000
+    val limits = 1000000
+    val maxDigits = limits.toString().length
 
-    // State for the current generated number
     var currentResult by remember { mutableStateOf<Int?>(null) }
 
-    // State for the session history
+    // Initialize with zeros (padding to the limit length)
+    var animatedDisplay by remember { mutableStateOf("0".repeat(maxDigits)) }
+
     val history = remember { mutableStateListOf<Int>() }
+
+    // Animation Logic: Right-to-Left replacement
+    LaunchedEffect(currentResult) {
+        currentResult?.let { result ->
+            // Convert result to string and pad with zeros to match maxDigits
+            val targetString = result.toString().padStart(maxDigits, '0')
+
+            // We iterate from the last index (right) to the first index (left)
+            for (i in maxDigits - 1 downTo 0) {
+                val currentChars = animatedDisplay.toCharArray()
+                currentChars[i] = targetString[i]
+                // Fix: Use concatToString() instead of the String constructor
+                animatedDisplay = currentChars.concatToString()
+                delay(80) // Adjust speed of digit change here
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Generate random numbers (-$limits to $limits)",
@@ -59,7 +80,6 @@ fun RandomNumberGenerator() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Range Inputs
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -144,7 +164,6 @@ fun RandomNumberGenerator() {
             )
         }
 
-        // Warning Message
         warningMessage?.let { message ->
             Text(
                 text = message,
@@ -157,9 +176,9 @@ fun RandomNumberGenerator() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Generate Button
         Button(
             onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 val min = minInput.toIntOrNull() ?: 0
                 val max = maxInput.toIntOrNull() ?: 0
 
@@ -181,12 +200,13 @@ fun RandomNumberGenerator() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Display Result
+        // Display Result with padded zeros and Right-to-Left animation
         Text(
-            text = currentResult?.toString() ?: "000000",
-            fontSize = 64.sp,
-            fontFamily = RobotoCondensed,
-            color = white
+            text = animatedDisplay,
+            fontSize = 120.sp,
+            fontFamily = LeagueGothic,
+            color = white,
+            softWrap = false
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -194,7 +214,6 @@ fun RandomNumberGenerator() {
         Text(text = "Number List", fontSize = 24.sp, fontFamily = RobotoCondensed, color = white)
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = gray)
 
-        // Using chunks to create a grid effect (3 columns)
         val columns = 3
         val historyChunks = history.chunked(columns)
 
@@ -206,7 +225,7 @@ fun RandomNumberGenerator() {
                 rowItems.forEach { number ->
                     Card(
                         modifier = Modifier
-                            .weight(1f) // Ensures all boxes are the same width
+                            .weight(1f)
                             .padding(vertical = 4.dp),
                         colors = CardDefaults.cardColors(containerColor = darkgray),
                         shape = RoundedCornerShape(8.dp)
@@ -219,7 +238,6 @@ fun RandomNumberGenerator() {
                         ) {
                             Text(
                                 text = number.toString(),
-                                // Adjusted font size to ensure 6 digits fit comfortably
                                 fontSize = 18.sp,
                                 fontFamily = LeagueGothic,
                                 color = white,
@@ -228,8 +246,6 @@ fun RandomNumberGenerator() {
                         }
                     }
                 }
-
-                // Add empty spacers if the last row isn't full to keep alignment
                 repeat(columns - rowItems.size) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
