@@ -86,7 +86,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
     }
     // Packaging excludes are vital for KMP to avoid duplicate file errors
     packaging {
@@ -97,7 +97,7 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false // Set to true if you have your proguard-rules.pro ready
+            isMinifyEnabled = true
         }
     }
     compileOptions {

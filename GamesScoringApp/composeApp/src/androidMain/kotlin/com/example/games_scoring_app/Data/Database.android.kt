@@ -9,9 +9,11 @@ import com.example.games_scoring_app.AppContext
 actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     val appContext = AppContext.get()
     val dbFile = appContext.getDatabasePath("games.db")
+
     return Room.databaseBuilder<AppDatabase>(
         context = appContext,
         name = dbFile.absolutePath
     )
-        .fallbackToDestructiveMigration(true)
+        .setDriver(AndroidSQLiteDriver()) // Explicitly set the driver for better stability
+        .fallbackToDestructiveMigration()
 }

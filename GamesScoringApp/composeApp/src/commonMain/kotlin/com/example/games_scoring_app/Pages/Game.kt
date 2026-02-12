@@ -92,7 +92,6 @@ fun GamePage(navController: NavController, gameId: Int, gameTypeId: Int) {
             }
         } else {
             backPressTime = currentTime
-            println("Press back again to exit")
         }
     }
 
@@ -169,7 +168,7 @@ fun GamePage(navController: NavController, gameId: Int, gameTypeId: Int) {
                     )
 
                     ButtonBar(
-                        text = "EDIT",
+                        text = "NEW GAME",
                         bgcolor = blue,
                         height = 64.dp,
                         textcolor = white,

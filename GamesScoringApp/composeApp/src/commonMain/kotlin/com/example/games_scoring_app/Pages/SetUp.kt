@@ -94,7 +94,6 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
             Color(gameColorHex.toLong(16).toInt())
 
         } catch (e: Exception) {
-            println("Color parsing failed for: $gameColorHex - Error: ${e.message}")
 
             red
         }
@@ -250,17 +249,20 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
 
                     for (i in 0 until maxPlayers) {
                         val isSelected = i < selectedPlayerCount
+                        val isNextAvailable = i == selectedPlayerCount // The "Add Player..." slot
+
                         var inputcolor = buttonColor
                         if (isSelected && thisGameType.value.name != "Truco") {
                             inputcolor = gameColor
                         }
 
+                        // Use isNextAvailable as a key for pointerInput so it resets when counts change
                         val modifier = Modifier
                             .fillMaxWidth()
                             .height(80.dp)
                             .padding(horizontal = 12.dp, vertical = 4.dp)
-                            .pointerInput(Unit) {
-                                if (!isSelected && i == selectedPlayerCount) {
+                            .pointerInput(isNextAvailable, selectedPlayerCount) {
+                                if (isNextAvailable) {
                                     detectTapGestures {
                                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                         selectedPlayerCount++
@@ -271,63 +273,56 @@ fun SetupPage(navController: NavController, gameType: Int, gameColorHex: String,
                         val border = if (isSelected) {
                             BorderStroke(4.dp, inputcolor)
                         } else {
-                            if (i == selectedPlayerCount) {
-                                BorderStroke(
-                                    width = 2.dp,
-                                    color = gray,
-
-                                    )
-
+                            if (isNextAvailable) {
+                                BorderStroke(width = 2.dp, color = gray)
                             } else {
                                 BorderStroke(2.dp, gray.copy(alpha = 0.5f))
                             }
                         }
-
-                        TextField(
-                            value = names[i],
-                            onValueChange = { names[i] = it },
-                            enabled = isSelected,
-                            placeholder = {
-                                val placeholderText =
-                                    if (i == selectedPlayerCount) "Add Player..." else "Player Name"
-                                Text(
-                                    text = placeholderText,
-                                    style = TextStyle(
-                                        color = fontColor.copy(alpha = 0.5f),
-                                        fontSize = 24.sp,
-                                        fontFamily = LeagueGothic
+                        Box(modifier = modifier) {
+                            TextField(
+                                value = names[i],
+                                onValueChange = { names[i] = it },
+                                enabled = isSelected,
+                                placeholder = {
+                                    val placeholderText = if (isNextAvailable) "Add Player..." else "Player Name"
+                                    Text(
+                                        text = placeholderText,
+                                        style = TextStyle(
+                                            color = fontColor.copy(alpha = 0.5f),
+                                            fontSize = 24.sp,
+                                            fontFamily = LeagueGothic
+                                        )
                                     )
-                                )
-                            },
-                            modifier = modifier.onFocusChanged { focusState ->
-                                if (focusState.isFocused) {
-                                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                                }
-                                }.border(
-                                    border,
-                                    shape = RoundedCornerShape(10.dp)
-                            ), // Apply the border here
-                            shape = RoundedCornerShape(10.dp),
-                            textStyle = TextStyle(
-                                fontFamily = LeagueGothic,
-                                fontSize = 32.sp,
-                                color = fontColor
-                            ),
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                unfocusedContainerColor = black,
-                                focusedContainerColor = black,
-                                // Make the disabled container slightly different
-                                disabledContainerColor = if (i == selectedPlayerCount) darkgray else black.copy(
-                                    alpha = 0.3f
+                                },
+                                modifier = Modifier
+                                    .fillMaxSize() // Fill the Box
+                                    .onFocusChanged { focusState ->
+                                        if (focusState.isFocused) {
+                                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                                        }
+                                    }
+                                    .border(border, shape = RoundedCornerShape(10.dp)),
+                                shape = RoundedCornerShape(10.dp),
+                                textStyle = TextStyle(
+                                    fontFamily = LeagueGothic,
+                                    fontSize = 32.sp,
+                                    color = fontColor
                                 ),
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent,
-                                cursorColor = fontColor
-                            ),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-                        )
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    unfocusedContainerColor = black,
+                                    focusedContainerColor = black,
+                                    disabledContainerColor = if (isNextAvailable) darkgray else black.copy(alpha = 0.3f),
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent,
+                                    cursorColor = fontColor
+                                ),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                            )
+                        }
+
                         if (thisGameType.value.name != "Truco") {
                             Spacer(modifier = Modifier.height(6.dp))
                         } else {

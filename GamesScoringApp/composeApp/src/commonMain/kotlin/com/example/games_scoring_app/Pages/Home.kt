@@ -209,19 +209,6 @@ fun HomePage(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             UtilitiesBox(
-                title = "COIN TOSSER",
-                bgcolor = darkgray,
-                accentColor = cream,
-                textcolor = buttonColor,
-                onClick = {
-
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    navController.navigate(Screen.Utilities.createRoute(2)) },
-                icon = Res.drawable.coin_toss,
-                description = "Toss a coin to see if it lands on heads or tails."
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            UtilitiesBox(
                 title = "TIMER",
                 bgcolor = darkgray,
                 accentColor = cream,
@@ -258,6 +245,19 @@ fun HomePage(navController: NavController) {
                     navController.navigate(Screen.Utilities.createRoute(5)) },
                 icon = Res.drawable.lottery,
                 description = "Count down timer"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            UtilitiesBox(
+                title = "COIN TOSSER",
+                bgcolor = darkgray,
+                accentColor = cream,
+                textcolor = buttonColor,
+                onClick = {
+
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    navController.navigate(Screen.Utilities.createRoute(2)) },
+                icon = Res.drawable.coin_toss,
+                description = "Toss a coin to see if it lands on heads or tails."
             )
         }
         Spacer(modifier = Modifier.height(40.dp))

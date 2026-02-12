@@ -69,7 +69,6 @@ abstract class AppDatabase : RoomDatabase() {
             scope.launch {
                 kotlinx.coroutines.delay(5000)
                 if (!_isDatabaseReady.value) {
-                    println("DEBUG_DB: Safety timeout triggered")
                     signalDatabaseOperational()
                 }
             }
@@ -92,12 +91,10 @@ abstract class AppDatabase : RoomDatabase() {
 
         override fun onCreate(connection: SQLiteConnection) {
             super.onCreate(connection)
-            println("DEBUG_DB: CALLBACK - onCreate")
         }
 
         override fun onOpen(connection: SQLiteConnection) {
             super.onOpen(connection)
-            println("DEBUG_DB: CALLBACK - onOpen")
 
             // Check the static flag to ensure we only start one init coroutine
             if (!getIsInitializing()) {
@@ -119,10 +116,7 @@ abstract class AppDatabase : RoomDatabase() {
                         // Logging for verification
                         val gameTypes = db.gameTypesDao().getAllGameTypesAsList()
                         gameTypes.forEach {
-                            println("DEBUG_DB_CONTENT: Type: ${it.name}, ID: ${it.id}")
                         }
-                    } catch (e: Exception) {
-                        println("DEBUG_DB: Initialization error: ${e.message}")
                     } finally {
                         signalDatabaseOperational()
                     }
@@ -132,10 +126,8 @@ abstract class AppDatabase : RoomDatabase() {
 
         suspend fun populateDatabase(gameTypesDao: GameTypesDao, settingsDao: SettingsDao, scoreTypesDao: ScoreTypesDao) {
             val existing = gameTypesDao.getAllGameTypesAsList()
-            println("DEBUG_DB: Found ${existing.size} existing game types.")
 
             if (existing.isEmpty()) {
-                println("DEBUG_DB: Table empty. Inserting default data...")
 
                 // Settings
                 val settings = settingsDao.getSettings()
@@ -223,9 +215,6 @@ abstract class AppDatabase : RoomDatabase() {
 
                     scoreTypesDao.insertScoreType(ScoreTypes(id_game_type = levelsId.toInt(), name = "Final Score"))
                 }
-                println("DEBUG_DB: Population complete.")
-            } else {
-                println("DEBUG_DB: Population skipped (Data already exists).")
             }
         }
     }
